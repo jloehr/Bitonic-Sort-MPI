@@ -1,0 +1,1 @@
+mpiexec ./bin/bitonic-mpi
