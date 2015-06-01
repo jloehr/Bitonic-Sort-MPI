@@ -32,3 +32,6 @@ bin/
 
 # Debug files
 *.dSYM/
+
+# Data Folder
+data/

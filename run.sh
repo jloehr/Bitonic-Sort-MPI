@@ -1,1 +1,1 @@
-mpiexec ./bin/bitonic-mpi
+mpiexec ./bin/bitonic-mpi -t 65536 ./../data/65536tweets.txt
