@@ -3,6 +3,7 @@
 
 #include "Program.h"
 #include "Node.h"
+#include "TweetParsing.h"
 
 int main(int argc, char * argv[])
 {
@@ -18,10 +19,19 @@ int main(int argc, char * argv[])
     	return Status;
     }
     
+    //Parse File
+    Status = ParseTweets(&ProgramContext);
+    if(Status != 0)
+    {
+    	return Status;
+    }
+    
     if(IsMasterNode(&(ProgramContext.NodeContext)))
     {
         printf("File: %s\nTweetCount: %d\n", ProgramContext.Filename, ProgramContext.TweetCount);
     }
+
+    //Start Bitonic Sort
 
     MPI_Finalize();
 	return 0;
