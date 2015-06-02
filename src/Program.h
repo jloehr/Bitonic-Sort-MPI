@@ -1,11 +1,15 @@
 #pragma once
 
+#include <stdint.h>
+
 #include "Node.h"
 
 typedef struct _PROGRAM_CONTEXT 
 {
 	const char * Filename;
-	unsigned int TweetCount;
+	uint32_t NumberOfFiles;
+	uint32_t TweetsPerFile;
+	const char * SearchTerm;
 	
 	NODE_CONTEXT NodeContext;
 

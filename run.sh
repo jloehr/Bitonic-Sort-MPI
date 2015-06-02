@@ -1,1 +1,1 @@
-mpiexec ./bin/bitonic-mpi -t 65536 ./data/65536tweets.txt
+mpiexec ./bin/bitonic-mpi -t 65536 -n 1 -f ./data/65536tweets  "la"
