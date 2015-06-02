@@ -1,16 +1,17 @@
 #pragma once
 
 #include <stdint.h>
-#define TWEET_ENTROPY_SIZE 160
+#define TWEET_ENTROPY_SIZE 200
 
 
 typedef struct _TWEET {
 	
-	uint32_t SearchTermValue;
-	uint32_t Size;
-	uint32_t Entropy[TWEET_ENTROPY_SIZE];
+	uint8_t SearchTermValue;
+	uint8_t Size;
+	double Entropy[TWEET_ENTROPY_SIZE];
 	
-	uint32_t FileID;
-	uint32_t PositionInFile;
+	uint8_t FileID;
+	uint64_t PositionInFile;
 	
 } TWEET, * PTWEET;
+
