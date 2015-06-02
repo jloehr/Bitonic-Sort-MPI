@@ -7,8 +7,10 @@
 #include "Node.h"
 #include "TweetParsing.h"
 
+#include "Tweet.h"
+
 int main(int argc, char * argv[])
-{
+{   
     setlocale(LC_ALL, "");
     
     MPI_Init(&argc, &argv);
@@ -37,7 +39,15 @@ int main(int argc, char * argv[])
     }
     
     //Start Bitonic Sort
+  
     
+    if(IsMasterNode(&(ProgramContext.NodeContext)))
+    {
+        for(int i = 0; i < 10; i++)
+        {
+            PrintTweet(&ProgramContext.NodeContext.Data[i]);
+        }
+    }
     
     FinalizeProgramContext(&ProgramContext);
 
