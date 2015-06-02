@@ -1,11 +1,15 @@
 #include "TweetParsing.h"
 
 #include <stdlib.h>
+#include <string.h>
+#include <stdio.h>
+#include <math.h> 
 
 #include "Tweet.h"
 
 int AllocateMemory(PPROGRAM_CONTEXT ProgramContext);
 int ParseFiles(PPROGRAM_CONTEXT ProgramContext);
+int ParseFile(PPROGRAM_CONTEXT ProgramContext, PTWEET * DataPointer, uint64_t FileID, uint64_t StartingLine, uint64_t LastLine);
 
 int ParseTweets(PPROGRAM_CONTEXT ProgramContext)
 {	
@@ -56,6 +60,9 @@ int AllocateMemory(PPROGRAM_CONTEXT ProgramContext)
 
 int ParseFiles(PPROGRAM_CONTEXT ProgramContext)
 {
+	int Result = 0;
+	PTWEET DataPointer = ProgramContext->NodeContext.Data;
+	
 	uint64_t StartingTweetID = ProgramContext->NodeContext.NodeID * ProgramContext->NodeContext.ElementsPerNode;
 	uint64_t EndTweetID = StartingTweetID + ProgramContext->NodeContext.ElementsPerNode - 1;
 	
@@ -69,8 +76,49 @@ int ParseFiles(PPROGRAM_CONTEXT ProgramContext)
 		
 		printf("Node %i: Parsing File %llu from %llu to %llu\n", ProgramContext->NodeContext.NodeID, FileID, StartingLine, LastLine);
 		
-		//Parse File ( Start, End)
+		Result = ParseFile(ProgramContext, &DataPointer, FileID, StartingLine, LastLine);
+		if(Result != 0)
+		{
+			return Result;
+		}
+		
 	}
 	
-	return 0;
+	return Result;
 }
+
+int ParseFile(PPROGRAM_CONTEXT ProgramContext, PTWEET * DataPointer, uint64_t FileID, uint64_t StartingLine, uint64_t LastLine)
+{
+	TWEET_PARSING_CONTEXT TweetParsingContext;
+	TweetParsingContext.FileID = FileID;
+	int Result = 0;
+	uint64_t LineNumber = 0;
+	
+	//Get Memory for Filename + the point + the FileID
+	uint32_t NumberOfDigits = log10(FileID) + 1;
+	uint32_t FilenameLength = strlen(ProgramContext->Filename);
+	char * FilenameBuffer = malloc(FilenameLength + NumberOfDigits + 1);
+	
+	sprintf(FilenameBuffer, "%s.%llu", ProgramContext->Filename, FileID);
+	
+	//Open File
+	TweetParsingContext.File = fopen(FilenameBuffer, "r");
+	if(TweetParsingContext.File == NULL)
+	{
+		printf("Error on Node %i: Unable to open File %s\n", ProgramContext->NodeContext.NodeID, FilenameBuffer);
+		free(FilenameBuffer);
+		return 3;
+	}
+	
+	free(FilenameBuffer);
+	
+	//Go to Start Line
+	
+	//Parse Lines
+	
+	//Close File
+	fclose(TweetParsingContext.File);
+	
+	return Result;
+}
+
