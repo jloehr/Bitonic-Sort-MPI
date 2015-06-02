@@ -10,6 +10,7 @@
 typedef struct _TWEET_PARSING_CONTEXT 
 {
 	FILE * File;
+	uint32_t FileID;
 	wchar_t Buffer[TWEET_PARSING_BUFFER_SIZE];
 	
 } TWEET_PARSING_CONTEXT, * PTWEET_PARSING_CONTEXT;
