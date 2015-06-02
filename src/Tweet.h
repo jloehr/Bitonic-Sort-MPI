@@ -1,7 +1,7 @@
 #pragma once
 
 #include <stdint.h>
-#define TWEET_ENTROPY_SIZE 280
+#define TWEET_ENTROPY_SIZE 160
 
 
 typedef struct _TWEET {
