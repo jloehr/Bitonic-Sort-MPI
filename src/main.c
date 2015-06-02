@@ -1,12 +1,16 @@
 #include <mpi.h>
 #include <stdio.h>
 
+#include <locale.h> 
+
 #include "Program.h"
 #include "Node.h"
 #include "TweetParsing.h"
 
 int main(int argc, char * argv[])
 {
+    setlocale(LC_ALL, "");
+    
     MPI_Init(&argc, &argv);
 
     PROGRAM_CONTEXT ProgramContext; 
