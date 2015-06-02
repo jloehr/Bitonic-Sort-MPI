@@ -10,6 +10,7 @@
 int AllocateMemory(PPROGRAM_CONTEXT ProgramContext);
 int ParseFiles(PPROGRAM_CONTEXT ProgramContext);
 int ParseFile(PPROGRAM_CONTEXT ProgramContext, PTWEET * DataPointer, uint64_t FileID, uint64_t StartingLine, uint64_t LastLine);
+void ParseTweetLine(PTWEET_PARSING_CONTEXT TweetParsingContext, const char * SearchTerm, PTWEET Tweet);
 
 int ParseTweets(PPROGRAM_CONTEXT ProgramContext)
 {	
@@ -113,8 +114,18 @@ int ParseFile(PPROGRAM_CONTEXT ProgramContext, PTWEET * DataPointer, uint64_t Fi
 	free(FilenameBuffer);
 	
 	//Go to Start Line
+	while(LineNumber < StartingLine)
+	{
+		while(fgetc(TweetParsingContext.File) != '\n');
+		LineNumber++;
+	}
 	
 	//Parse Lines
+	for(; LineNumber <= LastLine; LineNumber++)
+	{
+		ParseTweetLine(&TweetParsingContext, ProgramContext->SearchTerm, (*DataPointer));
+		(*DataPointer)++;
+	}
 	
 	//Close File
 	fclose(TweetParsingContext.File);
@@ -122,3 +133,56 @@ int ParseFile(PPROGRAM_CONTEXT ProgramContext, PTWEET * DataPointer, uint64_t Fi
 	return Result;
 }
 
+
+void ParseTweetLine(PTWEET_PARSING_CONTEXT TweetParsingContext, const char * SearchTerm, PTWEET Tweet)
+{
+	Tweet->FileID = TweetParsingContext->FileID;
+	Tweet->PositionInFile = ftell(TweetParsingContext->File);
+	Tweet->Size = 0;
+	Tweet->SearchTermValue = 0;
+	
+	double * EntropyPointer = Tweet->Entropy;
+	wint_t ReadChar;
+	uint64_t ConvertedChar;
+	uint64_t PreviousChar;
+	int64_t Difference; 
+	uint64_t CurrentEntropy = 0;
+	const char * SearchTermPointer = SearchTerm;
+	
+	while((ReadChar = fgetwc(TweetParsingContext->File)) != WEOF)
+	{
+		if(ReadChar == '\n')
+		{
+			break;
+		}
+		
+		ConvertedChar = ReadChar;
+		
+		//Calculate Entropy
+		if((Tweet->Size > 0))
+		{
+			Difference = (PreviousChar - ConvertedChar);
+			CurrentEntropy += (Difference * Difference);
+			(*EntropyPointer++) = sqrt(CurrentEntropy);	
+		}
+		
+		
+		//SearchTerm Substring
+		if((ConvertedChar <= 0x7F) && ((*SearchTermPointer) == ConvertedChar))
+		{
+			SearchTermPointer++;
+			if((*SearchTermPointer) == '\0')
+			{
+				SearchTermPointer = SearchTerm;
+				Tweet->SearchTermValue++;
+			}
+		}
+		else
+		{
+			SearchTermPointer = SearchTerm;
+		}
+		
+		Tweet->Size++;
+		PreviousChar = ConvertedChar;
+	}
+}
