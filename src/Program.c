@@ -19,3 +19,8 @@ int InitProgramContext(PPROGRAM_CONTEXT ProgramContext, int argc, char * argv[])
 	
 	return Result;
 }
+
+void FinalizeProgramContext(PPROGRAM_CONTEXT ProgramContext)
+{
+	FinalizeNodeContext(&(ProgramContext->NodeContext));
+}

@@ -1,48 +1,32 @@
 #include "TweetParsing.h"
 
-unsigned int GetTweetCount(PTWEET_PARSING_CONTEXT TweetParsingContext)
-{
-	int Buffer = 0;
-	unsigned int TweetCount = 0;
-	
-	while((Buffer = fgetc(TweetParsingContext->File)) != EOF)
-	{
-		if(Buffer == '\n')
-		{
-			TweetCount++;
-		}
-	}
-	
-	rewind(TweetParsingContext->File);
-	
-	return TweetCount;
-}
+#include <stdlib.h>
+
+#include "Tweet.h"
 
 int ParseTweets(PPROGRAM_CONTEXT ProgramContext)
 {	
 	TWEET_PARSING_CONTEXT TweetParsingContext;
 	
-	TweetParsingContext.File = fopen(ProgramContext->Filename, "r");
-	if(TweetParsingContext.File == NULL)
-	{
-        printf("Node: %i failed to open File\n", ProgramContext->NodeContext.NodeID);
-		return 2;
-	}
-	
-	//Get Tweet Count if none were specified
-	if(ProgramContext->TweetCount == 0)
-	{
-		for(int i = 0; i < 30; i++)
-		{
-			ProgramContext->TweetCount = GetTweetCount(&TweetParsingContext);
-		}		
-	}
+	//Tweets Per Node
+	uint64_t TotalAmountOfTweets = ProgramContext->TweetsPerFile * ProgramContext->NumberOfFiles;
+	ProgramContext->NodeContext.ElementsPerNode = TotalAmountOfTweets/ProgramContext->NodeContext.NumberOfNodes;
 	
 	//Allocate Space
+	ProgramContext->NodeContext.Data = malloc(ProgramContext->NodeContext.ElementsPerNode * sizeof(TWEET));
 	
-	//Do Parsing
+	if(IsMasterNode(&(ProgramContext->NodeContext)))
+	{
+        printf("Total Amount of Tweets: %llu\n", TotalAmountOfTweets);
+        printf("Tweets Per Node: %i\n", ProgramContext->NodeContext.ElementsPerNode);
+		printf("Allocated Space: %lu\n", ProgramContext->NodeContext.ElementsPerNode * sizeof(TWEET));
+	}
 	
-	fclose(TweetParsingContext.File);
+	if(ProgramContext->NodeContext.Data == NULL)
+	{
+		printf("Node %i: failed to allocate Data Memory\n", ProgramContext->NodeContext.NodeID);
+		return 2;
+	}
 	
 	return 0;
 }

@@ -16,3 +16,4 @@ typedef struct _PROGRAM_CONTEXT
 } PROGRAM_CONTEXT, * PPROGRAM_CONTEXT;
 
 int InitProgramContext(PPROGRAM_CONTEXT ProgramContext, int argc, char * argv[]);
+void FinalizeProgramContext(PPROGRAM_CONTEXT ProgramContext);

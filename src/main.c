@@ -19,6 +19,12 @@ int main(int argc, char * argv[])
     	return Status;
     }
     
+    if(IsMasterNode(&(ProgramContext.NodeContext)))
+    {
+        printf("File: %s\nTweet Count: %d\n", ProgramContext.Filename, (ProgramContext.TweetsPerFile * ProgramContext.NumberOfFiles));
+    }
+
+
     //Parse File
     Status = ParseTweets(&ProgramContext);
     if(Status != 0)
@@ -26,12 +32,10 @@ int main(int argc, char * argv[])
     	return Status;
     }
     
-    if(IsMasterNode(&(ProgramContext.NodeContext)))
-    {
-        printf("File: %s\nTweetCount: %d\n", ProgramContext.Filename, ProgramContext.TweetCount);
-    }
-
     //Start Bitonic Sort
+    
+    
+    FinalizeProgramContext(&ProgramContext);
 
     MPI_Finalize();
 	return 0;
