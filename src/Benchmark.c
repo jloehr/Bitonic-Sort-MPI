@@ -27,8 +27,10 @@ void PrintTimes(PBENCHMARK_CONTEXT BenchmarkContext)
 	double ReadingAndProcessingTime = (double)(BenchmarkContext->DoneReadingAndProcessing - BenchmarkContext->Start)/CLOCKS_PER_SEC;
 	double SortingTime = (double)(BenchmarkContext->DoneSorting - BenchmarkContext->DoneReadingAndProcessing)/CLOCKS_PER_SEC;
 	double WritingTime = (double)(BenchmarkContext->DoneWriting - BenchmarkContext->DoneSorting)/CLOCKS_PER_SEC;
+	double TotalTime = (double)(BenchmarkContext->DoneWriting - BenchmarkContext->Start)/CLOCKS_PER_SEC;
 	
 	printf("Reading & Processing:\t%#10.5fs\n", ReadingAndProcessingTime);
 	printf("Sorting:\t\t%#10.5fs\n", SortingTime);
 	printf("Writing:\t\t%#10.5fs\n", WritingTime);
+	printf("Total:\t\t\t%#10.5fs\n", TotalTime);
 }
