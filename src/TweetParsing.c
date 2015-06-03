@@ -1,6 +1,7 @@
 #include "TweetParsing.h"
 
 #include <stdlib.h>
+#include <wchar.h>
 #include <string.h>
 #include <stdio.h>
 #include <math.h> 
@@ -11,6 +12,7 @@ int AllocateMemory(PPROGRAM_CONTEXT ProgramContext);
 int ParseFiles(PPROGRAM_CONTEXT ProgramContext);
 int ParseFile(PPROGRAM_CONTEXT ProgramContext, PTWEET * DataPointer, uint64_t FileID, uint64_t StartingLine, uint64_t LastLine);
 void ParseTweetLine(PTWEET_PARSING_CONTEXT TweetParsingContext, const char * SearchTerm, PTWEET Tweet);
+void AddCharacterToUnicodeAppearance(wint_t ReadChar, PTWEET Tweet);
 
 int ParseTweets(PPROGRAM_CONTEXT ProgramContext)
 {	
@@ -140,13 +142,9 @@ void ParseTweetLine(PTWEET_PARSING_CONTEXT TweetParsingContext, const char * Sea
 	Tweet->PositionInFile = ftell(TweetParsingContext->File);
 	Tweet->Size = 0;
 	Tweet->SearchTermValue = 0;
+	Tweet->NumberOfDifferentUnicodes = 0;
 	
-	double * EntropyPointer = Tweet->Entropy;
 	wint_t ReadChar;
-	uint64_t ConvertedChar;
-	uint64_t PreviousChar;
-	int64_t Difference; 
-	uint64_t CurrentEntropy = 0;
 	const char * SearchTermPointer = SearchTerm;
 	
 	while((ReadChar = fgetwc(TweetParsingContext->File)) != WEOF)
@@ -156,19 +154,12 @@ void ParseTweetLine(PTWEET_PARSING_CONTEXT TweetParsingContext, const char * Sea
 			break;
 		}
 		
-		ConvertedChar = ReadChar;
-		
-		//Calculate Entropy
-		if((Tweet->Size > 0))
-		{
-			Difference = (PreviousChar - ConvertedChar);
-			CurrentEntropy += (Difference * Difference);
-			(*EntropyPointer++) = sqrt(CurrentEntropy);	
-		}
+		//Unicode Appearance
+		AddCharacterToUnicodeAppearance(ReadChar, Tweet);
 		
 		
 		//SearchTerm Substring
-		if((ConvertedChar <= 0x7F) && ((*SearchTermPointer) == ConvertedChar))
+		if((ReadChar <= 0x7F) && ((*SearchTermPointer) == ReadChar))
 		{
 			SearchTermPointer++;
 			if((*SearchTermPointer) == '\0')
@@ -183,6 +174,36 @@ void ParseTweetLine(PTWEET_PARSING_CONTEXT TweetParsingContext, const char * Sea
 		}
 		
 		Tweet->Size++;
-		PreviousChar = ConvertedChar;
 	}
+}
+
+void AddCharacterToUnicodeAppearance(wint_t ReadChar, PTWEET Tweet)
+{
+	for(uint32_t i = 0; i < Tweet->NumberOfDifferentUnicodes; i++)
+	{
+		PUNICODE_APPEARANCE UnicodeAppearance = &(Tweet->UnicodeAppearance[i]);
+		
+		//If the exact Unicode is already in the List, increase its Appearance Number
+		if(UnicodeAppearance->UnicodeCharacter == ReadChar)
+		{
+			UnicodeAppearance->NumberOfAppearance++;
+			return;
+		}	
+		
+		//Insert a new entry into the List, when the new Character is smaller than another
+		if(UnicodeAppearance->UnicodeCharacter > ReadChar)
+		{
+			memmove(UnicodeAppearance + 1, UnicodeAppearance, (Tweet->NumberOfDifferentUnicodes - i) * sizeof(UNICODE_APPEARANCE));
+			
+			UnicodeAppearance->UnicodeCharacter = ReadChar;
+			UnicodeAppearance->NumberOfAppearance = 1;
+		}
+	}
+
+	//If no entry was found and it is the biggest Unicode so far, append it
+	PUNICODE_APPEARANCE UnicodeAppearance = &(Tweet->UnicodeAppearance[Tweet->NumberOfDifferentUnicodes]);
+	Tweet->NumberOfDifferentUnicodes++;
+	
+	UnicodeAppearance->UnicodeCharacter = ReadChar;
+	UnicodeAppearance->NumberOfAppearance = 1;
 }

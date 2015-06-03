@@ -4,6 +4,7 @@
 
 void PrintTweet(PTWEET Tweet)
 {
-	double OverallEntropy = (Tweet->Size > 1) ? Tweet->Entropy[Tweet->Size - 2] : 0.f;
-	printf("%llu\t%u\t%u\t%f\n", Tweet->PositionInFile, Tweet->Size, Tweet->SearchTermValue, OverallEntropy);
+	wchar_t SmallestUnicode = Tweet->UnicodeAppearance[0].UnicodeCharacter;
+	uint8_t SmallestUnicodeCount = Tweet->UnicodeAppearance[0].NumberOfAppearance;
+	printf("%llu\t%u\t%u\t%x - %u\n", Tweet->PositionInFile, Tweet->Size, Tweet->SearchTermValue, SmallestUnicode, SmallestUnicodeCount );
 }
