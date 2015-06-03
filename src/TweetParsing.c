@@ -49,6 +49,7 @@ int AllocateMemory(PPROGRAM_CONTEXT ProgramContext)
 	{
         printf("Total Amount of Tweets: %llu\n", TotalAmountOfTweets);
         printf("Tweets Per Node: %i\n", ProgramContext->NodeContext.ElementsPerNode);
+        printf("Size per Tweet: %lu\n", sizeof(TWEET));
 		printf("Allocated Space: %llu\n", DataSize);
 	}
 	
@@ -156,7 +157,6 @@ void ParseTweetLine(PTWEET_PARSING_CONTEXT TweetParsingContext, const char * Sea
 		
 		//Unicode Appearance
 		AddCharacterToUnicodeAppearance(ReadChar, Tweet);
-		
 		
 		//SearchTerm Substring
 		if((ReadChar <= 0x7F) && ((*SearchTermPointer) == ReadChar))
