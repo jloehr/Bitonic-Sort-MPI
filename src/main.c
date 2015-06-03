@@ -6,6 +6,7 @@
 #include "Program.h"
 #include "Node.h"
 #include "TweetParsing.h"
+#include "Benchmark.h"
 
 #include "Tweet.h"
 
@@ -30,7 +31,8 @@ int main(int argc, char * argv[])
         printf("File: %s\nTweet Count: %d\n", ProgramContext.Filename, (ProgramContext.TweetsPerFile * ProgramContext.NumberOfFiles));
     }
 
-
+    StartBenchmark(&ProgramContext.NodeContext.BenchmarkContext);
+    
     //Parse File
     Status = ParseTweets(&ProgramContext);
     if(Status != 0)
@@ -38,8 +40,12 @@ int main(int argc, char * argv[])
     	return Status;
     }
     
+    DoneReadingAndProcessing(&ProgramContext.NodeContext.BenchmarkContext);
+    
     //Start Bitonic Sort
   
+    
+    DoneSorting(&ProgramContext.NodeContext.BenchmarkContext);
     
     if(IsMasterNode(&(ProgramContext.NodeContext)))
     {
@@ -49,8 +55,11 @@ int main(int argc, char * argv[])
         }
     }
     
+    DoneWriting(&ProgramContext.NodeContext.BenchmarkContext);
+    PrintTimes(&ProgramContext.NodeContext.BenchmarkContext);
+    
     FinalizeProgramContext(&ProgramContext);
-
     MPI_Finalize();
+    
 	return 0;
 }

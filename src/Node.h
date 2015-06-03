@@ -4,11 +4,14 @@
 #include <stdbool.h>
 
 #include "Tweet.h"
+#include "Benchmark.h"
 
 typedef struct _NODE_CONTEXT
 {
 	int NodeID;
 	int NumberOfNodes;
+	
+	BENCHMARK_CONTEXT BenchmarkContext;
 	
 	uint32_t ElementsPerNode;
 	
