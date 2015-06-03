@@ -12,7 +12,11 @@ int AllocateMemory(PPROGRAM_CONTEXT ProgramContext);
 int ParseFiles(PPROGRAM_CONTEXT ProgramContext);
 int ParseFile(PPROGRAM_CONTEXT ProgramContext, PTWEET * DataPointer, uint64_t FileID, uint64_t StartingLine, uint64_t LastLine);
 void ParseTweetLine(PTWEET_PARSING_CONTEXT TweetParsingContext, const char * SearchTerm, PTWEET Tweet);
+#ifdef UNICODE_APPEARANCE_ARRAY
 void AddCharacterToUnicodeAppearance(wint_t ReadChar, PTWEET Tweet);
+#else
+void AddCharacterToUnicodeAppearance(wint_t ReadChar, PTWEET_PARSING_CONTEXT Tweet);
+#endif
 
 int ParseTweets(PPROGRAM_CONTEXT ProgramContext)
 {	
@@ -143,7 +147,8 @@ void ParseTweetLine(PTWEET_PARSING_CONTEXT TweetParsingContext, const char * Sea
 	Tweet->PositionInFile = ftell(TweetParsingContext->File);
 	Tweet->Size = 0;
 	Tweet->SearchTermValue = 0;
-	Tweet->NumberOfDifferentUnicodes = 0;
+	
+	TweetParsingContext->NumberOfDifferentUnicodes = 0;
 	
 	wint_t ReadChar;
 	const char * SearchTermPointer = SearchTerm;
@@ -156,7 +161,11 @@ void ParseTweetLine(PTWEET_PARSING_CONTEXT TweetParsingContext, const char * Sea
 		}
 		
 		//Unicode Appearance
+#ifdef UNICODE_APPEARANCE_ARRAY
 		AddCharacterToUnicodeAppearance(ReadChar, Tweet);
+#else
+		AddCharacterToUnicodeAppearance(ReadChar, TweetParsingContext);
+#endif
 		
 		//SearchTerm Substring
 		if((ReadChar <= 0x7F) && ((*SearchTermPointer) == ReadChar))
@@ -175,9 +184,24 @@ void ParseTweetLine(PTWEET_PARSING_CONTEXT TweetParsingContext, const char * Sea
 		
 		Tweet->Size++;
 	}
+	
+#ifndef UNICODE_APPEARANCE_ARRAY
+	Tweet->NumberOfDifferentUnicodes = TweetParsingContext->NumberOfDifferentUnicodes;
+	uint64_t NumberOfBytes = TweetParsingContext->NumberOfDifferentUnicodes * sizeof(UNICODE_APPEARANCE);
+	Tweet->UnicodeAppearance = malloc(NumberOfBytes);
+	if(Tweet->UnicodeAppearance == NULL)
+	{
+		printf("Out of Memory");
+		abort();
+	}
+	memcpy(Tweet->UnicodeAppearance, TweetParsingContext->UnicodeAppearance, NumberOfBytes);
+#endif
 }
-
+#ifdef UNICODE_APPEARANCE_ARRAY
 void AddCharacterToUnicodeAppearance(wint_t ReadChar, PTWEET Tweet)
+#else
+void AddCharacterToUnicodeAppearance(wint_t ReadChar, PTWEET_PARSING_CONTEXT Tweet)
+#endif
 {
 	for(uint32_t i = 0; i < Tweet->NumberOfDifferentUnicodes; i++)
 	{
