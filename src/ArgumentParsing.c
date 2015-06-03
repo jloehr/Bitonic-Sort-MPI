@@ -4,6 +4,8 @@
 #include <stdlib.h>
 #include <unistd.h>
 
+#include "ErrorCodes.h"
+
 int ParseArguments(int argc, char * argv[], PPROGRAM_CONTEXT ProgramContext)
 {
 	char Argument;
@@ -47,7 +49,7 @@ int ParseArguments(int argc, char * argv[], PPROGRAM_CONTEXT ProgramContext)
 		{
 			printf("Error no Search Term provided!\n");	
 		}
-		return 1;
+		return ERROR_NON_VALID_ARGUMENTS;
 	}
 
 	if(ProgramContext->Filename == NULL)
@@ -56,7 +58,7 @@ int ParseArguments(int argc, char * argv[], PPROGRAM_CONTEXT ProgramContext)
 		{
 			printf("Error no Filename provided!\n");	
 		}
-		return 1;
+		return ERROR_NON_VALID_ARGUMENTS;
 	}
 	
 	if(ProgramContext->NumberOfFiles == 0)
@@ -65,7 +67,7 @@ int ParseArguments(int argc, char * argv[], PPROGRAM_CONTEXT ProgramContext)
 		{
 			printf("Error, please provide the Number of Files!\n");	
 		}
-		return 1;
+		return ERROR_NON_VALID_ARGUMENTS;
 	}
 	
 	if(ProgramContext->TweetsPerFile == 0)
@@ -74,8 +76,8 @@ int ParseArguments(int argc, char * argv[], PPROGRAM_CONTEXT ProgramContext)
 		{
 			printf("Error, please provide the Number of Tweets per File!\n");	
 		}
-		return 1;
+		return ERROR_NON_VALID_ARGUMENTS;
 	}
 
-	return 0;
+	return NO_ERROR;
 }

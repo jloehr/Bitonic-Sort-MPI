@@ -1,7 +1,10 @@
 #include <mpi.h>
 #include <stdio.h>
+#include <stdlib.h>
 
-#include <locale.h> 
+#include <locale.h>
+
+#include "ErrorCodes.h" 
 
 #include "Program.h"
 #include "Node.h"
@@ -21,7 +24,7 @@ int main(int argc, char * argv[])
 
     //Init Program & Node -> ParseArguments and set NodeID
     Status = InitProgramContext(&ProgramContext, argc, argv);
-    if(Status != 0)
+    if(Status != NO_ERROR)
     {
     	return Status;
     }
@@ -35,7 +38,7 @@ int main(int argc, char * argv[])
     
     //Parse File
     Status = ParseTweets(&ProgramContext);
-    if(Status != 0)
+    if(Status != NO_ERROR)
     {
     	return Status;
     }
@@ -46,6 +49,9 @@ int main(int argc, char * argv[])
   
     
     DoneSorting(&ProgramContext.NodeContext.BenchmarkContext);
+    
+    //Write Results to file
+    
     
     if(IsMasterNode(&(ProgramContext.NodeContext)))
     {
@@ -61,5 +67,5 @@ int main(int argc, char * argv[])
     FinalizeProgramContext(&ProgramContext);
     MPI_Finalize();
     
-	return 0;
+	return NO_ERROR;
 }

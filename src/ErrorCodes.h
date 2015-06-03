@@ -1,0 +1,7 @@
+#pragma once
+
+#define NO_ERROR 0
+#define ERROR_NON_VALID_ARGUMENTS 1
+#define ERROR_NOT_ENOUGH_MEMORY 2
+#define ERROR_UNABLE_TO_OPEN_FILE 3
+#define ERROR_OUT_OF_MEMORY 4

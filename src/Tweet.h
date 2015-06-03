@@ -3,7 +3,8 @@
 #include <stdint.h>
 #include <wchar.h>
 
-#define UNICODE_APPEARANCE_ARRAY
+//#define UNICODE_APPEARANCE_ARRAY
+//#define SAVE_TWEET_POSITION
 
 #define MAX_TWEET_CHARACTER_COUNT 200
 
@@ -25,8 +26,12 @@ typedef struct _TWEET {
 	UNICODE_APPEARANCE * UnicodeAppearance;
 #endif
 
+#ifdef SAVE_TWEET_POSITION
 	uint8_t FileID;
 	uint64_t PositionInFile;
+#else
+	wchar_t * Tweet;
+#endif	
 	
 } TWEET, * PTWEET;
 

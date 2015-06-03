@@ -6,12 +6,14 @@
 #include <stdio.h>
 #include <math.h> 
 
+#include "ErrorCodes.h"
+
 #include "Tweet.h"
 
 int AllocateMemory(PPROGRAM_CONTEXT ProgramContext);
 int ParseFiles(PPROGRAM_CONTEXT ProgramContext);
 int ParseFile(PPROGRAM_CONTEXT ProgramContext, PTWEET * DataPointer, uint64_t FileID, uint64_t StartingLine, uint64_t LastLine);
-void ParseTweetLine(PTWEET_PARSING_CONTEXT TweetParsingContext, const char * SearchTerm, PTWEET Tweet);
+int ParseTweetLine(PTWEET_PARSING_CONTEXT TweetParsingContext, const char * SearchTerm, PTWEET Tweet, PNODE_CONTEXT NodeContext);
 #ifdef UNICODE_APPEARANCE_ARRAY
 void AddCharacterToUnicodeAppearance(wint_t ReadChar, PTWEET Tweet);
 #else
@@ -20,16 +22,16 @@ void AddCharacterToUnicodeAppearance(wint_t ReadChar, PTWEET_PARSING_CONTEXT Twe
 
 int ParseTweets(PPROGRAM_CONTEXT ProgramContext)
 {	
-	int Result = 0;
+	int Result = NO_ERROR;
 	
 	Result = AllocateMemory(ProgramContext);	
-	if(Result != 0)
+	if(Result != NO_ERROR)
 	{
 		return Result;
 	}
 		
 	Result = ParseFiles(ProgramContext);
-	if(Result != 0)
+	if(Result != NO_ERROR)
 	{
 		return Result;
 	}
@@ -60,15 +62,15 @@ int AllocateMemory(PPROGRAM_CONTEXT ProgramContext)
 	if(ProgramContext->NodeContext.Data == NULL)
 	{
 		printf("Node %i: failed to allocate Data Memory\n", ProgramContext->NodeContext.NodeID);
-		return 2;
+		return ERROR_NOT_ENOUGH_MEMORY;
 	}
 	
-	return 0;
+	return NO_ERROR;
 }
 
 int ParseFiles(PPROGRAM_CONTEXT ProgramContext)
 {
-	int Result = 0;
+	int Result = NO_ERROR;
 	PTWEET DataPointer = ProgramContext->NodeContext.Data;
 	
 	uint64_t StartingTweetID = ProgramContext->NodeContext.NodeID * ProgramContext->NodeContext.ElementsPerNode;
@@ -85,7 +87,7 @@ int ParseFiles(PPROGRAM_CONTEXT ProgramContext)
 		printf("Node %i: Parsing File %llu from %llu to %llu\n", ProgramContext->NodeContext.NodeID, FileID, StartingLine, LastLine);
 		
 		Result = ParseFile(ProgramContext, &DataPointer, FileID, StartingLine, LastLine);
-		if(Result != 0)
+		if(Result != NO_ERROR)
 		{
 			return Result;
 		}
@@ -99,7 +101,7 @@ int ParseFile(PPROGRAM_CONTEXT ProgramContext, PTWEET * DataPointer, uint64_t Fi
 {
 	TWEET_PARSING_CONTEXT TweetParsingContext;
 	TweetParsingContext.FileID = FileID;
-	int Result = 0;
+	int Result = NO_ERROR;
 	uint64_t LineNumber = 0;
 	
 	//Get Memory for Filename + the point + the FileID
@@ -115,7 +117,7 @@ int ParseFile(PPROGRAM_CONTEXT ProgramContext, PTWEET * DataPointer, uint64_t Fi
 	{
 		printf("Error on Node %i: Unable to open File %s\n", ProgramContext->NodeContext.NodeID, FilenameBuffer);
 		free(FilenameBuffer);
-		return 3;
+		return ERROR_UNABLE_TO_OPEN_FILE;
 	}
 	
 	free(FilenameBuffer);
@@ -130,7 +132,7 @@ int ParseFile(PPROGRAM_CONTEXT ProgramContext, PTWEET * DataPointer, uint64_t Fi
 	//Parse Lines
 	for(; LineNumber <= LastLine; LineNumber++)
 	{
-		ParseTweetLine(&TweetParsingContext, ProgramContext->SearchTerm, (*DataPointer));
+		ParseTweetLine(&TweetParsingContext, ProgramContext->SearchTerm, (*DataPointer), &ProgramContext->NodeContext);
 		(*DataPointer)++;
 	}
 	
@@ -141,10 +143,19 @@ int ParseFile(PPROGRAM_CONTEXT ProgramContext, PTWEET * DataPointer, uint64_t Fi
 }
 
 
-void ParseTweetLine(PTWEET_PARSING_CONTEXT TweetParsingContext, const char * SearchTerm, PTWEET Tweet)
+int ParseTweetLine(PTWEET_PARSING_CONTEXT TweetParsingContext, const char * SearchTerm, PTWEET Tweet, PNODE_CONTEXT NodeContext)
 {
+#ifdef SAVE_TWEET_POSITION
 	Tweet->FileID = TweetParsingContext->FileID;
 	Tweet->PositionInFile = ftell(TweetParsingContext->File);
+#else
+	Tweet->Tweet = malloc(MAX_TWEET_CHARACTER_COUNT * sizeof(wchar_t));
+	if(Tweet->Tweet == NULL)
+	{
+		printf("Error on Node %i: Out of Memory\n", NodeContext->NodeID);
+		return ERROR_OUT_OF_MEMORY;
+	}
+#endif
 	Tweet->Size = 0;
 	Tweet->SearchTermValue = 0;
 	
@@ -152,13 +163,23 @@ void ParseTweetLine(PTWEET_PARSING_CONTEXT TweetParsingContext, const char * Sea
 	
 	wint_t ReadChar;
 	const char * SearchTermPointer = SearchTerm;
+#ifndef SAVE_TWEET_POSITION
+	wchar_t * WritePointer = Tweet->Tweet; 
+#endif
 	
 	while((ReadChar = fgetwc(TweetParsingContext->File)) != WEOF)
 	{
 		if(ReadChar == '\n')
 		{
+#ifndef SAVE_TWEET_POSITION
+			(*WritePointer) = '\0'; 
+#endif
 			break;
 		}
+		
+#ifndef SAVE_TWEET_POSITION
+		(*WritePointer++) = ReadChar; 
+#endif
 		
 		//Unicode Appearance
 #ifdef UNICODE_APPEARANCE_ARRAY
@@ -191,12 +212,15 @@ void ParseTweetLine(PTWEET_PARSING_CONTEXT TweetParsingContext, const char * Sea
 	Tweet->UnicodeAppearance = malloc(NumberOfBytes);
 	if(Tweet->UnicodeAppearance == NULL)
 	{
-		printf("Out of Memory");
-		abort();
+		printf("Error on Node %i: Out of Memory\n", NodeContext->NodeID);
+		return ERROR_OUT_OF_MEMORY;
 	}
 	memcpy(Tweet->UnicodeAppearance, TweetParsingContext->UnicodeAppearance, NumberOfBytes);
 #endif
+
+	return NO_ERROR;
 }
+
 #ifdef UNICODE_APPEARANCE_ARRAY
 void AddCharacterToUnicodeAppearance(wint_t ReadChar, PTWEET Tweet)
 #else
