@@ -51,7 +51,7 @@ int main(int argc, char * argv[])
     DoneSorting(&ProgramContext.NodeContext.BenchmarkContext);
     
     //Write Results to file
-    
+    //WriteOutResults(&ProgramContext);
     
     if(IsMasterNode(&(ProgramContext.NodeContext)))
     {
