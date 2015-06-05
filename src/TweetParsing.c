@@ -92,6 +92,8 @@ int ParseFiles(PPROGRAM_CONTEXT ProgramContext)
 			return Result;
 		}
 		
+		printf("Node %i: Done Parsing File %llu\n", ProgramContext->NodeContext.NodeID, FileID);
+		
 	}
 	
 	return Result;
