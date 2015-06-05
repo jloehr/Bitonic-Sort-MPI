@@ -13,7 +13,7 @@ typedef struct _NODE_CONTEXT
 	
 	BENCHMARK_CONTEXT BenchmarkContext;
 	
-	uint32_t ElementsPerNode;
+	uint64_t ElementsPerNode;
 	
 	PTWEET Data;
 	

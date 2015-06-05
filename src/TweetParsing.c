@@ -54,7 +54,7 @@ int AllocateMemory(PPROGRAM_CONTEXT ProgramContext)
 	if(IsMasterNode(&(ProgramContext->NodeContext)))
 	{
         printf("Total Amount of Tweets: %llu\n", TotalAmountOfTweets);
-        printf("Tweets Per Node: %i\n", ProgramContext->NodeContext.ElementsPerNode);
+        printf("Tweets Per Node: %llu\n", ProgramContext->NodeContext.ElementsPerNode);
         printf("Size per Tweet: %lu\n", sizeof(TWEET));
 		printf("Allocated Space: %llu\n", DataSize);
 	}
