@@ -4,7 +4,7 @@
 
 #include "Program.h"
 
-#define WRITE_DEBUG_INFO_TO_FILE
+//#define WRITE_DEBUG_INFO_TO_FILE
 
 typedef struct _INPUT_MMAP_FILE
 {
