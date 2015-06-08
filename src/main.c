@@ -10,6 +10,7 @@
 #include "Node.h"
 #include "TweetParsing.h"
 #include "Benchmark.h"
+#include "FileWriter.h"
 
 #include "Tweet.h"
 
