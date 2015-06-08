@@ -34,5 +34,3 @@ void CleanUpTweet(PTWEET Tweet)
 	}
 #endif
 }
-
-}
