@@ -12,9 +12,14 @@ void InitNodeContext(PNODE_CONTEXT NodeContext)
 }
 
 void FinalizeNodeContext(PNODE_CONTEXT NodeContext)
-{
+{ 
   if(NodeContext->Data != NULL)
   {
+    for(PTWEET Tweet = NodeContext->Data; Tweet != &NodeContext->Data[NodeContext->ElementsPerNode]; Tweet++)
+    {
+      CleanUpTweet(Tweet);
+    }
+    
     free(NodeContext->Data);
     NodeContext->Data = NULL;
   }

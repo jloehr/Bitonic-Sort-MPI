@@ -36,3 +36,5 @@ typedef struct _TWEET {
 } TWEET, * PTWEET;
 
 void PrintTweet(PTWEET Tweet);
+void CleanUpTweet(PTWEET Tweet);
+
