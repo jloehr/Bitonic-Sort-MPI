@@ -5,7 +5,7 @@
 #include <wchar.h>
 
 //#define UNICODE_APPEARANCE_ARRAY
-#define SAVE_TWEET_POSITION
+//#define SAVE_TWEET_POSITION
 
 #define MAX_TWEET_CHARACTER_COUNT 450
 
