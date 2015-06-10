@@ -263,6 +263,7 @@ void AddCharacterToUnicodeAppearance(wint_t ReadChar, PTWEET_PARSING_CONTEXT Twe
 			
 			UnicodeAppearance->UnicodeCharacter = ReadChar;
 			UnicodeAppearance->NumberOfAppearance = 1;
+			return;
 		}
 	}
 
