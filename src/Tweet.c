@@ -6,14 +6,27 @@
 
 void PrintTweet(PTWEET Tweet)
 {
-	wchar_t SmallestUnicode = Tweet->UnicodeAppearance[0].UnicodeCharacter;
-	uint8_t SmallestUnicodeCount = Tweet->UnicodeAppearance[0].NumberOfAppearance;
-	
+	PrintTweetDebugInfoToStream(stdout, Tweet);
 #ifdef SAVE_TWEET_POSITION
-	printf("%llu\t%u\t%u\t%x - %u\n", Tweet->PositionInFile, Tweet->Size, Tweet->SearchTermValue, SmallestUnicode, SmallestUnicodeCount);
+	printf("\n");
 #else
-	wprintf(L"%u\t%u\t%x - %u\t%S\n", Tweet->Size, Tweet->SearchTermValue, SmallestUnicode, SmallestUnicodeCount, Tweet->Tweet);
+	wprintf(L"%S\n", Tweet->Tweet);
+#endif	
+}
+
+void PrintTweetDebugInfoToStream(FILE * Stream, PTWEET Tweet)
+{
+	//Position in File
+#ifdef SAVE_TWEET_POSITION
+	fwprintf(Stream, L"(%u)%12llu\t", Tweet->FileID, Tweet->PositionInFile);
 #endif
+
+	fwprintf(Stream, L"%3u\t%2u\t", Tweet->Size, Tweet->SearchTermValue);
+	
+	for(PUNICODE_APPEARANCE UnicodeAppearance = Tweet->UnicodeAppearance; UnicodeAppearance != (Tweet->UnicodeAppearance + Tweet->NumberOfDifferentUnicodes); UnicodeAppearance++)
+	{
+		fwprintf(Stream, L"%4x: %3u\t", UnicodeAppearance->UnicodeCharacter, UnicodeAppearance->NumberOfAppearance);
+	}
 }
 
 void CleanUpTweet(PTWEET Tweet)

@@ -92,9 +92,14 @@ void WriteTweetsToFile(PNODE_CONTEXT NodeContext, PFILE_WRITER_CONTEXT FileWrite
 	
 	for(PTWEET Tweet = NodeContext->Data; Tweet != &(NodeContext->Data[NodeContext->ElementsPerNode]); Tweet++)
 	{	
+		
 		SourceFile = &FileWriterContext->InputFiles[Tweet->FileID];
 		ReadPointer = SourceFile->Start + Tweet->PositionInFile;
-		
+			
+#ifdef WRITE_DEBUG_INFO_TO_FILE
+		PrintTweetDebugInfoToStream(FileWriterContext->OutputFile, Tweet);
+#endif	
+
 		do {
 			if(ReadPointer == SourceFile->End)
 			{
@@ -111,7 +116,7 @@ void WriteTweetsToFile(PNODE_CONTEXT NodeContext, PFILE_WRITER_CONTEXT FileWrite
 	for(PTWEET Tweet = NodeContext->Data; Tweet != &(NodeContext->Data[NodeContext->ElementsPerNode]); Tweet++)
 	{		
 #ifdef WRITE_DEBUG_INFO_TO_FILE
-		//Print Debug Info
+		PrintTweetDebugInfoToStream(FileWriterContext->OutputFile, Tweet);
 #endif	
 		fputws(Tweet->Tweet, FileWriterContext->OutputFile);
 		fputwc(L'\n', FileWriterContext->OutputFile);
