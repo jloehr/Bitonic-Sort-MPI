@@ -150,13 +150,6 @@ int ParseTweetLine(PTWEET_PARSING_CONTEXT TweetParsingContext, const char * Sear
 #ifdef SAVE_TWEET_POSITION
 	Tweet->FileID = TweetParsingContext->FileID;
 	Tweet->PositionInFile = ftell(TweetParsingContext->File);
-#else
-	Tweet->Tweet = malloc(MAX_TWEET_CHARACTER_COUNT * sizeof(wchar_t));
-	if(Tweet->Tweet == NULL)
-	{
-		printf("Error on Node %i: Out of Memory\n", NodeContext->NodeID);
-		return ERROR_OUT_OF_MEMORY;
-	}
 #endif
 	Tweet->Size = 0;
 	Tweet->SearchTermValue = 0;
@@ -166,7 +159,7 @@ int ParseTweetLine(PTWEET_PARSING_CONTEXT TweetParsingContext, const char * Sear
 	wint_t ReadChar;
 	const char * SearchTermPointer = SearchTerm;
 #ifndef SAVE_TWEET_POSITION
-	wchar_t * WritePointer = Tweet->Tweet; 
+	wchar_t * WritePointer = TweetParsingContext->TweetBuffer; 
 #endif
 	
 	while((ReadChar = fgetwc(TweetParsingContext->File)) != WEOF)
@@ -174,7 +167,8 @@ int ParseTweetLine(PTWEET_PARSING_CONTEXT TweetParsingContext, const char * Sear
 		if(ReadChar == '\n')
 		{
 #ifndef SAVE_TWEET_POSITION
-			(*WritePointer) = '\0'; 
+			Tweet->Size++;
+			(*WritePointer) = '\n'; 
 #endif
 			break;
 		}
@@ -218,6 +212,18 @@ int ParseTweetLine(PTWEET_PARSING_CONTEXT TweetParsingContext, const char * Sear
 		return ERROR_OUT_OF_MEMORY;
 	}
 	memcpy(Tweet->UnicodeAppearance, TweetParsingContext->UnicodeAppearance, NumberOfBytes);
+#endif
+
+#ifndef SAVE_TWEET_POSITION
+	uint64_t NumberOfTweetBytes = Tweet->Size * sizeof(wchar_t);
+	Tweet->Tweet = malloc(NumberOfTweetBytes);
+	if(Tweet->Tweet == NULL)
+	{
+		printf("Error on Node %i: Out of Memory\n", NodeContext->NodeID);
+		return ERROR_OUT_OF_MEMORY;
+	}
+	
+	memcpy(Tweet->Tweet, TweetParsingContext->TweetBuffer, NumberOfTweetBytes);
 #endif
 
 	return NO_ERROR;
