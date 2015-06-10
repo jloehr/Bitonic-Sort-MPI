@@ -185,18 +185,28 @@ int ParseTweetLine(PTWEET_PARSING_CONTEXT TweetParsingContext, const char * Sear
 #endif
 		
 		//SearchTerm Substring
-		if((ReadChar <= 0x7F) && ((*SearchTermPointer) == ReadChar))
+		//If none ASCII Character just skip and reset
+		if(ReadChar > 0x7F)
 		{
-			SearchTermPointer++;
-			if((*SearchTermPointer) == '\0')
-			{
-				SearchTermPointer = SearchTerm;
-				Tweet->SearchTermValue++;
-			}
+			SearchTermPointer = SearchTerm;
 		}
 		else
 		{
-			SearchTermPointer = SearchTerm;
+			//If unequal out pointer to first position so it is checked against first search term character
+			if((*SearchTermPointer) != ReadChar)
+			{
+				SearchTermPointer = SearchTerm;
+			}
+			
+			if((*SearchTermPointer) == ReadChar)
+			{
+				SearchTermPointer++;
+				if((*SearchTermPointer) == '\0')
+				{
+					SearchTermPointer = SearchTerm;
+					Tweet->SearchTermValue++;
+				}
+			}
 		}
 		
 		Tweet->Size++;
