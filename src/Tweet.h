@@ -38,3 +38,4 @@ typedef struct _TWEET {
 void PrintTweet(PTWEET Tweet);
 void CleanUpTweet(PTWEET Tweet);
 
+int CompareTweets(const void * a, const void * b);

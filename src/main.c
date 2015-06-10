@@ -11,6 +11,7 @@
 #include "TweetParsing.h"
 #include "Benchmark.h"
 #include "FileWriter.h"
+#include "BitonicSort.h"
 
 #include "Tweet.h"
 
@@ -47,7 +48,7 @@ int main(int argc, char * argv[])
     DoneReadingAndProcessing(&ProgramContext.NodeContext.BenchmarkContext);
     
     //Start Bitonic Sort
-  
+    Sort(&ProgramContext.NodeContext);
     
     DoneSorting(&ProgramContext.NodeContext.BenchmarkContext);
     

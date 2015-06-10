@@ -34,3 +34,36 @@ void CleanUpTweet(PTWEET Tweet)
 	}
 #endif
 }
+
+int CompareTweets(const void * a, const void * b)
+{	
+	const TWEET * A = a;
+	const TWEET * B = b;
+	
+	if(A->SearchTermValue != B->SearchTermValue)
+	{
+		return B->SearchTermValue - A->SearchTermValue;
+	}
+	else
+	{
+		uint8_t MinIndex = A->NumberOfDifferentUnicodes < B->NumberOfDifferentUnicodes ? A->NumberOfDifferentUnicodes : B->NumberOfDifferentUnicodes;	
+		
+		PUNICODE_APPEARANCE UnicodeAppearanceA, UnicodeAppearanceB;
+		
+		for(UnicodeAppearanceA = A->UnicodeAppearance, UnicodeAppearanceB = B->UnicodeAppearance; 
+			UnicodeAppearanceA != (A->UnicodeAppearance + MinIndex);
+			UnicodeAppearanceA++, UnicodeAppearanceB++)
+		{
+			if(UnicodeAppearanceA->UnicodeCharacter != UnicodeAppearanceB->UnicodeCharacter)
+			{
+				return UnicodeAppearanceA->UnicodeCharacter - UnicodeAppearanceB->UnicodeCharacter;
+			}
+			else if(UnicodeAppearanceA->NumberOfAppearance != UnicodeAppearanceB->NumberOfAppearance)
+			{
+				return UnicodeAppearanceB->NumberOfAppearance - UnicodeAppearanceA->NumberOfAppearance;
+			}
+		}
+		
+		return 	B->NumberOfDifferentUnicodes - A->NumberOfDifferentUnicodes;
+	}
+}
