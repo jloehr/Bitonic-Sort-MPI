@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <getopt.h>
+#include <string.h>
 
 #include "ErrorCodes.h"
 
@@ -40,8 +41,18 @@ int ParseArguments(int argc, char * argv[], PPROGRAM_CONTEXT ProgramContext)
 
 	if(optind < argc)
 	{
-		ProgramContext->SearchTerm = argv[optind];
+		//get the memory for the wstring
+		const char * SearchTerm = argv[optind];
+		size_t SearchTermBytes = strlen(SearchTerm);
+		size_t WCharLength = mbsrtowcs(NULL, &SearchTerm, 0, NULL);
+		
+		//allocate memory
+		ProgramContext->SearchTerm = calloc(WCharLength + 1,sizeof(wchar_t));
+		
+		//convert argument to wchar *
+		mbsrtowcs((wchar_t *)ProgramContext->SearchTerm, &SearchTerm, WCharLength, NULL);
 		optind++;
+		
 	}
 
 	if(ProgramContext->SearchTerm == NULL)

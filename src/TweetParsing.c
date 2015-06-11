@@ -13,7 +13,7 @@
 int AllocateMemory(PPROGRAM_CONTEXT ProgramContext);
 int ParseFiles(PPROGRAM_CONTEXT ProgramContext);
 int ParseFile(PPROGRAM_CONTEXT ProgramContext, PTWEET * DataPointer, uint64_t FileID, uint64_t StartingLine, uint64_t LastLine);
-int ParseTweetLine(PTWEET_PARSING_CONTEXT TweetParsingContext, const char * SearchTerm, PTWEET Tweet, PNODE_CONTEXT NodeContext);
+int ParseTweetLine(PTWEET_PARSING_CONTEXT TweetParsingContext, const wchar_t * SearchTerm, PTWEET Tweet, PNODE_CONTEXT NodeContext);
 #ifdef UNICODE_APPEARANCE_ARRAY
 void AddCharacterToUnicodeAppearance(wint_t ReadChar, PTWEET Tweet);
 #else
@@ -145,7 +145,7 @@ int ParseFile(PPROGRAM_CONTEXT ProgramContext, PTWEET * DataPointer, uint64_t Fi
 }
 
 
-int ParseTweetLine(PTWEET_PARSING_CONTEXT TweetParsingContext, const char * SearchTerm, PTWEET Tweet, PNODE_CONTEXT NodeContext)
+int ParseTweetLine(PTWEET_PARSING_CONTEXT TweetParsingContext, const wchar_t * SearchTerm, PTWEET Tweet, PNODE_CONTEXT NodeContext)
 {
 #ifdef SAVE_TWEET_POSITION
 	Tweet->FileID = TweetParsingContext->FileID;
@@ -157,7 +157,7 @@ int ParseTweetLine(PTWEET_PARSING_CONTEXT TweetParsingContext, const char * Sear
 	TweetParsingContext->NumberOfDifferentUnicodes = 0;
 	
 	wint_t ReadChar;
-	const char * SearchTermPointer = SearchTerm;
+	const wchar_t * SearchTermPointer = SearchTerm;
 #ifndef SAVE_TWEET_POSITION
 	wchar_t * WritePointer = TweetParsingContext->TweetBuffer; 
 #endif
@@ -184,29 +184,22 @@ int ParseTweetLine(PTWEET_PARSING_CONTEXT TweetParsingContext, const char * Sear
 #endif
 		
 		//SearchTerm Substring
-		//If none ASCII Character just skip and reset
-		if(ReadChar > 0x7F)
+		//If unequal out pointer to first position so it is checked against first search term character
+		if((*SearchTermPointer) != ReadChar)
 		{
 			SearchTermPointer = SearchTerm;
 		}
-		else
+		
+		if((*SearchTermPointer) == ReadChar)
 		{
-			//If unequal out pointer to first position so it is checked against first search term character
-			if((*SearchTermPointer) != ReadChar)
+			SearchTermPointer++;
+			if((*SearchTermPointer) == '\0')
 			{
 				SearchTermPointer = SearchTerm;
-			}
-			
-			if((*SearchTermPointer) == ReadChar)
-			{
-				SearchTermPointer++;
-				if((*SearchTermPointer) == '\0')
-				{
-					SearchTermPointer = SearchTerm;
-					Tweet->SearchTermValue++;
-				}
+				Tweet->SearchTermValue++;
 			}
 		}
+	
 		
 		Tweet->Size++;
 	}

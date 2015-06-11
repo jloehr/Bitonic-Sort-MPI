@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdint.h>
+#include <wchar.h>
 
 #include "Node.h"
 
@@ -9,7 +10,7 @@ typedef struct _PROGRAM_CONTEXT
 	const char * Filename;
 	uint32_t NumberOfFiles;
 	uint32_t TweetsPerFile;
-	const char * SearchTerm;
+	const wchar_t * SearchTerm;
 	
 	NODE_CONTEXT NodeContext;
 

@@ -23,4 +23,9 @@ int InitProgramContext(PPROGRAM_CONTEXT ProgramContext, int argc, char * argv[])
 void FinalizeProgramContext(PPROGRAM_CONTEXT ProgramContext)
 {
 	FinalizeNodeContext(&(ProgramContext->NodeContext));
+	
+	if(ProgramContext->SearchTerm != NULL)
+	{
+		free((void *)ProgramContext->SearchTerm);
+	}
 }
