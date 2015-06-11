@@ -167,8 +167,7 @@ int ParseTweetLine(PTWEET_PARSING_CONTEXT TweetParsingContext, const char * Sear
 		if(ReadChar == '\n')
 		{
 #ifndef SAVE_TWEET_POSITION
-			Tweet->Size++;
-			(*WritePointer) = '\n'; 
+			(*WritePointer) = '\0'; 
 #endif
 			break;
 		}
@@ -225,7 +224,8 @@ int ParseTweetLine(PTWEET_PARSING_CONTEXT TweetParsingContext, const char * Sear
 #endif
 
 #ifndef SAVE_TWEET_POSITION
-	uint64_t NumberOfTweetBytes = Tweet->Size * sizeof(wchar_t);
+	// Tweet Size + 1 for the null terminator
+	uint64_t NumberOfTweetBytes = (Tweet->Size + 1) * sizeof(wchar_t);
 	Tweet->Tweet = malloc(NumberOfTweetBytes);
 	if(Tweet->Tweet == NULL)
 	{
