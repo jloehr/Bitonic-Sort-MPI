@@ -1,6 +1,6 @@
 #pragma once
 
-#include <stdint.h>
+#include "Int.h"
 #include <stdbool.h>
 
 #include "Tweet.h"

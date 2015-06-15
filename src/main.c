@@ -34,7 +34,7 @@ int main(int argc, char * argv[])
     if(IsMasterNode(&(ProgramContext.NodeContext)))
     {
 		wprintf(L"Search Term: %S\n", ProgramContext.SearchTerm);
-        printf("File: %s\nTweet Count: %d\n", ProgramContext.Filename, (ProgramContext.TweetsPerFile * ProgramContext.NumberOfFiles));
+        wprintf(L"File: %s\nTweet Count: %d\n", ProgramContext.Filename, (ProgramContext.TweetsPerFile * ProgramContext.NumberOfFiles));
     }
 
     StartBenchmark(&ProgramContext.NodeContext.BenchmarkContext);

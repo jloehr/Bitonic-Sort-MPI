@@ -1,7 +1,7 @@
 #pragma once
 
+#include "Int.h"
 #include <stdio.h>
-#include <stdint.h>
 #include <wchar.h>
 
 //#define UNICODE_APPEARANCE_ARRAY

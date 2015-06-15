@@ -31,7 +31,7 @@ int ParseArguments(int argc, char * argv[], PPROGRAM_CONTEXT ProgramContext)
 			case '?':
 				if(IsMasterNode(&(ProgramContext->NodeContext)))
 				{
-					printf ("Option -%c requires an argument.\n", optopt);
+					wprintf (L"Option -%c requires an argument.\n", optopt);
 				}
           		break;
 			default:
@@ -59,7 +59,7 @@ int ParseArguments(int argc, char * argv[], PPROGRAM_CONTEXT ProgramContext)
 	{
 		if(IsMasterNode(&(ProgramContext->NodeContext)))
 		{
-			printf("Error no Search Term provided!\n");	
+			wprintf(L"Error no Search Term provided!\n");	
 		}
 		return ERROR_NON_VALID_ARGUMENTS;
 	}
@@ -68,7 +68,7 @@ int ParseArguments(int argc, char * argv[], PPROGRAM_CONTEXT ProgramContext)
 	{
 		if(IsMasterNode(&(ProgramContext->NodeContext)))
 		{
-			printf("Error no Filename provided!\n");	
+			wprintf(L"Error no Filename provided!\n");	
 		}
 		return ERROR_NON_VALID_ARGUMENTS;
 	}
@@ -77,7 +77,7 @@ int ParseArguments(int argc, char * argv[], PPROGRAM_CONTEXT ProgramContext)
 	{
 		if(IsMasterNode(&(ProgramContext->NodeContext)))
 		{
-			printf("Error, please provide the Number of Files!\n");	
+			wprintf(L"Error, please provide the Number of Files!\n");	
 		}
 		return ERROR_NON_VALID_ARGUMENTS;
 	}
@@ -86,7 +86,7 @@ int ParseArguments(int argc, char * argv[], PPROGRAM_CONTEXT ProgramContext)
 	{
 		if(IsMasterNode(&(ProgramContext->NodeContext)))
 		{
-			printf("Error, please provide the Number of Tweets per File!\n");	
+			wprintf(L"Error, please provide the Number of Tweets per File!\n");	
 		}
 		return ERROR_NON_VALID_ARGUMENTS;
 	}

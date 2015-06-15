@@ -8,7 +8,7 @@ void PrintTweet(PTWEET Tweet)
 {
 	PrintTweetDebugInfoToStream(stdout, Tweet);
 #ifdef SAVE_TWEET_POSITION
-	printf("\n");
+	wprintf(L"\n");
 #else
 	wprintf(L"%S\n", Tweet->Tweet);
 #endif	
@@ -18,7 +18,7 @@ void PrintTweetDebugInfoToStream(FILE * Stream, PTWEET Tweet)
 {
 	//Position in File
 #ifdef SAVE_TWEET_POSITION
-	fwprintf(Stream, L"(%u)%12llu\t", Tweet->FileID, Tweet->PositionInFile);
+	fwprintf(Stream, L"(%u)%12"PRIu64"\t", Tweet->FileID, Tweet->PositionInFile);
 #endif
 
 	fwprintf(Stream, L"%3u\t%2u\t", Tweet->Size, Tweet->SearchTermValue);

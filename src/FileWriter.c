@@ -74,7 +74,7 @@ int OpenOutputFile(PPROGRAM_CONTEXT ProgramContext, PFILE_WRITER_CONTEXT FileWri
 	FileWriterContext->OutputFile = fopen(FilenameBuffer, "w");
 	if(FileWriterContext->OutputFile == NULL)
 	{
-		printf("Error on Node %i: Unable to open File %s\n", ProgramContext->NodeContext.NodeID, FilenameBuffer);
+		wprintf(L"Error on Node %i: Unable to open File %s\n", ProgramContext->NodeContext.NodeID, FilenameBuffer);
 		free(FilenameBuffer);
 		return ERROR_UNABLE_TO_OPEN_FILE;
 	}
@@ -153,7 +153,7 @@ int MMapInputFiles(PPROGRAM_CONTEXT ProgramContext, PFILE_WRITER_CONTEXT FileWri
 		InputFile->FileHandle = open(FilenameBuffer, O_RDONLY);
 		if(InputFile->FileHandle == -1)
 		{
-			printf("Error on Node %i: Unable to open File %s\n", ProgramContext->NodeContext.NodeID, FilenameBuffer);
+			wprintf(L"Error on Node %i: Unable to open File %s\n", ProgramContext->NodeContext.NodeID, FilenameBuffer);
 			free(FilenameBuffer);
 			MUnMapInputFiles(ProgramContext, FileWriterContext);
 			return ERROR_UNABLE_TO_OPEN_FILE;
@@ -161,7 +161,7 @@ int MMapInputFiles(PPROGRAM_CONTEXT ProgramContext, PFILE_WRITER_CONTEXT FileWri
 		
 		if(fstat(InputFile->FileHandle, &TmpFileStats) == -1)
 		{
-			printf("Error on Node %i: Unable to get File Stats %s\n", ProgramContext->NodeContext.NodeID, FilenameBuffer);
+			wprintf(L"Error on Node %i: Unable to get File Stats %s\n", ProgramContext->NodeContext.NodeID, FilenameBuffer);
 			free(FilenameBuffer);
 			MUnMapInputFiles(ProgramContext, FileWriterContext);
 			return ERROR_UNABLE_TO_GET_FILE_STATS;		
@@ -173,7 +173,7 @@ int MMapInputFiles(PPROGRAM_CONTEXT ProgramContext, PFILE_WRITER_CONTEXT FileWri
 		InputFile->Start = mmap(NULL, InputFile->Size, PROT_READ, MAP_PRIVATE, InputFile->FileHandle, 0);
 		if(InputFile->Start == MAP_FAILED)
 		{
-			printf("Error on Node %i: Unable map File %s\n", ProgramContext->NodeContext.NodeID, FilenameBuffer);
+			wprintf(L"Error on Node %i: Unable map File %s\n", ProgramContext->NodeContext.NodeID, FilenameBuffer);
 			free(FilenameBuffer);
 			MUnMapInputFiles(ProgramContext, FileWriterContext);
 			return ERROR_UNABLE_TO_MAP_FILE;			
