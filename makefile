@@ -1,7 +1,7 @@
 
 CC = mpicc
-CFLAGS = -g
-LDFLAGS = 
+CFLAGS = -O3 -std=c99
+LDFLAGS = -lm
 
 SOURCEDIR = ./src/
 OBJECTDIR = ./obj/

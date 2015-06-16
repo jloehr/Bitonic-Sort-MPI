@@ -1,8 +1,78 @@
+#include <mpi.h>
 #include <stdio.h>
+#include <stdlib.h>
+
+#include <locale.h>
+
+#include "ErrorCodes.h" 
+
+#include "Program.h"
+#include "Node.h"
+#include "TweetParsing.h"
+#include "Benchmark.h"
+#include "FileWriter.h"
+#include "BitonicSort.h"
+
+#include "Tweet.h"
 
 int main(int argc, char * argv[])
-{
-    printf("Hello World!\n");
-     
-	return 0;
+{   
+    setlocale(LC_ALL, "");
+    
+    MPI_Init(&argc, &argv);
+
+    PROGRAM_CONTEXT ProgramContext; 
+    int Status;
+
+    //Init Program & Node -> ParseArguments and set NodeID
+    Status = InitProgramContext(&ProgramContext, argc, argv);
+    if(Status != NO_ERROR)
+    {
+    	return Status;
+    }
+    
+    if(IsMasterNode(&(ProgramContext.NodeContext)))
+    {
+		wprintf(L"Search Term: %S\n", ProgramContext.SearchTerm);
+        wprintf(L"File: %s\nTweet Count: %d\n", ProgramContext.Filename, (ProgramContext.TweetsPerFile * ProgramContext.NumberOfFiles));
+    }
+
+    StartBenchmark(&ProgramContext.NodeContext.BenchmarkContext);
+    
+    //Parse File
+    Status = ParseTweets(&ProgramContext);
+    if(Status != NO_ERROR)
+    {
+    	return Status;
+    }
+    
+    DoneReadingAndProcessing(&ProgramContext.NodeContext.BenchmarkContext);
+    
+    //Start Bitonic Sort
+    Sort(&ProgramContext.NodeContext);
+    
+    DoneSorting(&ProgramContext.NodeContext.BenchmarkContext);
+    
+    //Write Results to file
+    int Result = WriteOutResults(&ProgramContext);
+    if(Status != NO_ERROR)
+    {
+    	return Status;
+    }
+    
+    if(IsMasterNode(&(ProgramContext.NodeContext)))
+    {
+        for(int i = 0; i < 10; i++)
+        {
+            PrintTweet(&ProgramContext.NodeContext.Data[i]);
+        }
+    }
+    
+    DoneWriting(&ProgramContext.NodeContext.BenchmarkContext);
+    PrintTimes(&ProgramContext.NodeContext.BenchmarkContext);
+    
+    FinalizeProgramContext(&ProgramContext);
+    MPI_Finalize();
+    
+	return NO_ERROR;
 }
