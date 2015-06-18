@@ -19,11 +19,8 @@ int AllocateMemory(PPROGRAM_CONTEXT ProgramContext);
 int ParseFiles(PPROGRAM_CONTEXT ProgramContext);
 int ParseFile(PPROGRAM_CONTEXT ProgramContext, PTWEET * DataPointer, uint64_t FileID, uint64_t StartingLine, uint64_t LastLine);
 int ParseTweetLine(PTWEET_PARSING_CONTEXT TweetParsingContext, const wchar_t * SearchTerm, PTWEET Tweet, PNODE_CONTEXT NodeContext);
-#ifdef UNICODE_APPEARANCE_ARRAY
-void AddCharacterToUnicodeAppearance(wint_t ReadChar, PTWEET Tweet);
-#else
 void AddCharacterToUnicodeAppearance(wint_t ReadChar, PTWEET_PARSING_CONTEXT Tweet);
-#endif
+
 
 int ParseTweets(PPROGRAM_CONTEXT ProgramContext)
 {	
@@ -161,10 +158,6 @@ int ParseFile(PPROGRAM_CONTEXT ProgramContext, PTWEET * DataPointer, uint64_t Fi
 
 int ParseTweetLine(PTWEET_PARSING_CONTEXT TweetParsingContext, const wchar_t * SearchTerm, PTWEET Tweet, PNODE_CONTEXT NodeContext)
 {
-#ifdef SAVE_TWEET_POSITION
-	Tweet->FileID = TweetParsingContext->FileID;
-	Tweet->PositionInFile = ftell(TweetParsingContext->File);
-#endif
 	Tweet->Size = 0;
 	Tweet->SearchTermValue = 0;
 	
@@ -172,30 +165,20 @@ int ParseTweetLine(PTWEET_PARSING_CONTEXT TweetParsingContext, const wchar_t * S
 	
 	wint_t ReadChar;
 	const wchar_t * SearchTermPointer = SearchTerm;
-#ifndef SAVE_TWEET_POSITION
 	wchar_t * WritePointer = TweetParsingContext->TweetBuffer; 
-#endif
 	
 	while((ReadChar = fgetwc(TweetParsingContext->File)) != WEOF)
 	{
 		if(ReadChar == '\n')
 		{
-#ifndef SAVE_TWEET_POSITION
 			(*WritePointer) = '\0'; 
-#endif
 			break;
 		}
 		
-#ifndef SAVE_TWEET_POSITION
 		(*WritePointer++) = ReadChar; 
-#endif
 		
 		//Unicode Appearance
-#ifdef UNICODE_APPEARANCE_ARRAY
-		AddCharacterToUnicodeAppearance(ReadChar, Tweet);
-#else
 		AddCharacterToUnicodeAppearance(ReadChar, TweetParsingContext);
-#endif
 		
 		//SearchTerm Substring
 		//If unequal out pointer to first position so it is checked against first search term character
@@ -218,7 +201,7 @@ int ParseTweetLine(PTWEET_PARSING_CONTEXT TweetParsingContext, const wchar_t * S
 		Tweet->Size++;
 	}
 	
-#ifndef UNICODE_APPEARANCE_ARRAY
+	//Copy Unicode Apperance Array
 	Tweet->NumberOfDifferentUnicodes = TweetParsingContext->NumberOfDifferentUnicodes;
 	uint64_t NumberOfBytes = TweetParsingContext->NumberOfDifferentUnicodes * sizeof(UNICODE_APPEARANCE);
 	Tweet->UnicodeAppearance = malloc(NumberOfBytes);
@@ -231,9 +214,8 @@ int ParseTweetLine(PTWEET_PARSING_CONTEXT TweetParsingContext, const wchar_t * S
 
 	UnicodeAppearanceMemory += NumberOfBytes;
 	UnicodeAppearanceFields += TweetParsingContext->NumberOfDifferentUnicodes;
-#endif
 
-#ifndef SAVE_TWEET_POSITION
+	// Copy Tweet from Buffer
 	// Tweet Size + 1 for the null terminator
 	uint64_t NumberOfTweetBytes = (Tweet->Size + 1) * sizeof(wchar_t);
 	Tweet->Tweet = malloc(NumberOfTweetBytes);
@@ -246,16 +228,11 @@ int ParseTweetLine(PTWEET_PARSING_CONTEXT TweetParsingContext, const wchar_t * S
 	memcpy(Tweet->Tweet, TweetParsingContext->TweetBuffer, NumberOfTweetBytes);
 	
 	TweetStringMemory += NumberOfTweetBytes;
-#endif
 
 	return NO_ERROR;
 }
 
-#ifdef UNICODE_APPEARANCE_ARRAY
-void AddCharacterToUnicodeAppearance(wint_t ReadChar, PTWEET Tweet)
-#else
 void AddCharacterToUnicodeAppearance(wint_t ReadChar, PTWEET_PARSING_CONTEXT Tweet)
-#endif
 {
 	for(uint32_t i = 0; i < Tweet->NumberOfDifferentUnicodes; i++)
 	{
