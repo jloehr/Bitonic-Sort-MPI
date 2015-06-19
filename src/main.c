@@ -8,12 +8,13 @@
 
 #include "Program.h"
 #include "Node.h"
-#include "TweetParsing.h"
 #include "Benchmark.h"
-#include "FileWriter.h"
-#include "BitonicSort.h"
-
 #include "Tweet.h"
+#include "FileReader.h"
+#include "TweetParsing.h"
+#include "BitonicSort.h"
+#include "FileWriter.h"
+
 
 int main(int argc, char * argv[])
 {   
@@ -33,20 +34,35 @@ int main(int argc, char * argv[])
     
     if(IsMasterNode(&(ProgramContext.NodeContext)))
     {
-		wprintf(L"Search Term: %S\n", ProgramContext.SearchTerm);
-        wprintf(L"File: %s\nTweet Count: %d\n", ProgramContext.Filename, (ProgramContext.TweetsPerFile * ProgramContext.NumberOfFiles));
+		wprintf(L"Search Term:\t %S\n", ProgramContext.SearchTerm);
+        wprintf(L"File:\t\t %s\n", ProgramContext.Filename);
+        wprintf(L"Tweet Count:\t %d\n",ProgramContext.TotalAmountOfTweets);
+        wprintf(L"Tweets Per Node: %"PRIu64"\n", ProgramContext.NodeContext.ElementsPerNode);
+        wprintf(L"Size per Tweet:\t %llu\n", sizeof(TWEET)); 
+	    wprintf(L"\n");
     }
 
     StartBenchmark(&ProgramContext.NodeContext.BenchmarkContext);
     
-    //Parse File
+    //Read Files
+    Status = ReadInTweets(&ProgramContext);
+    if(Status != NO_ERROR)
+    {
+    	return Status;
+    }
+    
+    DoneReading(&ProgramContext.NodeContext.BenchmarkContext);
+    
+    //Parse Tweets
     Status = ParseTweets(&ProgramContext);
     if(Status != NO_ERROR)
     {
     	return Status;
     }
     
-    DoneReadingAndProcessing(&ProgramContext.NodeContext.BenchmarkContext);
+    PrintMemoryConsumption(&ProgramContext.NodeContext.BenchmarkContext);
+    
+    DoneInitializing(&ProgramContext.NodeContext.BenchmarkContext);
     
     //Start Bitonic Sort
     Sort(&ProgramContext.NodeContext);
@@ -54,18 +70,10 @@ int main(int argc, char * argv[])
     DoneSorting(&ProgramContext.NodeContext.BenchmarkContext);
     
     //Write Results to file
-    int Result = WriteOutResults(&ProgramContext);
+    Status = WriteOutResults(&ProgramContext);
     if(Status != NO_ERROR)
     {
     	return Status;
-    }
-    
-    if(IsMasterNode(&(ProgramContext.NodeContext)))
-    {
-        for(int i = 0; i < 10; i++)
-        {
-            PrintTweet(&ProgramContext.NodeContext.Data[i]);
-        }
     }
     
     DoneWriting(&ProgramContext.NodeContext.BenchmarkContext);

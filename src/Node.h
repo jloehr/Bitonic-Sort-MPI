@@ -3,17 +3,17 @@
 #include "Int.h"
 #include <stdbool.h>
 
-#include "Tweet.h"
+#include "ForwardDeclarations.h"
+
 #include "Benchmark.h"
 
 typedef struct _NODE_CONTEXT
 {
 	int NodeID;
 	int NumberOfNodes;
+	uint64_t ElementsPerNode;
 	
 	BENCHMARK_CONTEXT BenchmarkContext;
-	
-	uint64_t ElementsPerNode;
 	
 	PTWEET Data;
 	

@@ -4,11 +4,12 @@
 #include <stdio.h>
 #include <wchar.h>
 
-void PrintTweet(PTWEET Tweet)
+#include "Program.h"
+
+void PrintTweet(PPROGRAM_CONTEXT ProgramContext, PTWEET Tweet)
 {
 	PrintTweetDebugInfoToStream(stdout, Tweet);
-	wprintf(L"%S\n", Tweet->Tweet);
-
+	wprintf(L"%S\n", ProgramContext->Tweets[Tweet->TweetStringID]);
 }
 
 void PrintTweetDebugInfoToStream(FILE * Stream, PTWEET Tweet)

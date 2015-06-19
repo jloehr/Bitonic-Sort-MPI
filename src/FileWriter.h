@@ -1,8 +1,9 @@
 #pragma once
 
+#include "Int.h"
 #include <stdio.h>
 
-#include "Program.h"
+#include "ForwardDeclarations.h"
 
 //#define WRITE_DEBUG_INFO_TO_FILE
 

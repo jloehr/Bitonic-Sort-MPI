@@ -8,11 +8,11 @@
 
 #include "ErrorCodes.h"
 
+#include "Program.h"
+
 int ParseArguments(int argc, char * argv[], PPROGRAM_CONTEXT ProgramContext)
 {
 	char Argument;
-	int Index;
-
 	opterr = 0;
 
 	while ((Argument = getopt (argc, argv, "f:n:t:")) != -1)
@@ -43,7 +43,6 @@ int ParseArguments(int argc, char * argv[], PPROGRAM_CONTEXT ProgramContext)
 	{
 		//get the memory for the wstring
 		const char * SearchTerm = argv[optind];
-		size_t SearchTermBytes = strlen(SearchTerm);
 		size_t WCharLength = mbsrtowcs(NULL, &SearchTerm, 0, NULL);
 		
 		//allocate memory

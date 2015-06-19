@@ -3,11 +3,16 @@
 #include <stdlib.h>
 #include <mpi.h>
 
+#include "Tweet.h"
+
 void InitNodeContext(PNODE_CONTEXT NodeContext)
 {
+  InitBenchmark(&NodeContext->BenchmarkContext);
+  
   MPI_Comm_rank(MPI_COMM_WORLD, &NodeContext->NodeID);
   MPI_Comm_size(MPI_COMM_WORLD, &NodeContext->NumberOfNodes);
   
+  NodeContext->ElementsPerNode = 0;
   NodeContext->Data = NULL;
 }
 

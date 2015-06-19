@@ -2,25 +2,18 @@
 
 #include <stdlib.h>
 #include <wchar.h>
-#include <string.h>
 #include <stdio.h>
-#include <math.h> 
+#include <string.h>
 
 #include "ErrorCodes.h"
 
 #include "Tweet.h"
+#include "Program.h"
 
-uint64_t UnicodeAppearanceMemory = 0;
-uint64_t UnicodeAppearanceFields = 0;
-uint64_t TweetStringMemory = 0;
-uint64_t TweetMemory = 0;
-
-int AllocateMemory(PPROGRAM_CONTEXT ProgramContext);
-int ParseFiles(PPROGRAM_CONTEXT ProgramContext);
-int ParseFile(PPROGRAM_CONTEXT ProgramContext, PTWEET * DataPointer, uint64_t FileID, uint64_t StartingLine, uint64_t LastLine);
-int ParseTweetLine(PTWEET_PARSING_CONTEXT TweetParsingContext, const wchar_t * SearchTerm, PTWEET Tweet, PNODE_CONTEXT NodeContext);
-void AddCharacterToUnicodeAppearance(wint_t ReadChar, PTWEET_PARSING_CONTEXT Tweet);
-
+static int AllocateMemory(PPROGRAM_CONTEXT ProgramContext);
+static int ParseTweetStrings(PPROGRAM_CONTEXT ProgramContext);
+static int ParseTweet(PPROGRAM_CONTEXT ProgramContext, PTWEET_PARSING_CONTEXT TweetParsingContext, PWSTRING TweetString, PTWEET Tweet, uint64_t TweetID);
+static void AddCharacterToUnicodeAppearance(wint_t ReadChar, PTWEET_PARSING_CONTEXT Tweet);
 
 int ParseTweets(PPROGRAM_CONTEXT ProgramContext)
 {	
@@ -32,43 +25,21 @@ int ParseTweets(PPROGRAM_CONTEXT ProgramContext)
 		return Result;
 	}
 		
-	Result = ParseFiles(ProgramContext);
+	Result = ParseTweetStrings(ProgramContext);
 	if(Result != NO_ERROR)
 	{
 		return Result;
 	}
-	
-	wprintf(L"UnicodeAppearanceMemory: %"PRIu64"\n",UnicodeAppearanceMemory);
-	wprintf(L"UnicodeAppearanceFields: %"PRIu64"\n",UnicodeAppearanceFields);
-	wprintf(L"Tweet String Memory: %"PRIu64"\n",TweetStringMemory);
-	wprintf(L"TweetMemory: %"PRIu64"\n",TweetMemory);
-	wprintf(L"----\n");
-	wprintf(L"Total: %"PRIu64"\n",UnicodeAppearanceMemory + TweetStringMemory + TweetMemory);
-	
-	
 	return Result;
 }
 
 int AllocateMemory(PPROGRAM_CONTEXT ProgramContext)
 {
-	//Tweets Per Node
-	uint64_t TotalAmountOfTweets = ProgramContext->TweetsPerFile * ProgramContext->NumberOfFiles;
-	
-	ProgramContext->NodeContext.ElementsPerNode = TotalAmountOfTweets/ProgramContext->NodeContext.NumberOfNodes;
-	
 	uint64_t DataSize = ProgramContext->NodeContext.ElementsPerNode * sizeof(TWEET);
 	
 	//Allocate Space
 	ProgramContext->NodeContext.Data = malloc(DataSize);
-	TweetMemory += DataSize;
-	
-	if(IsMasterNode(&(ProgramContext->NodeContext)))
-	{
-        wprintf(L"Total Amount of Tweets: %"PRIu64"\n", TotalAmountOfTweets);
-        wprintf(L"Tweets Per Node: %"PRIu64"\n", ProgramContext->NodeContext.ElementsPerNode);
-        wprintf(L"Size per Tweet: %llu\n", sizeof(TWEET));
-		wprintf(L"Allocated Space: %"PRIu64"\n", DataSize);
-	}
+	ProgramContext->NodeContext.BenchmarkContext.TweetDataMemory = DataSize;
 	
 	if(ProgramContext->NodeContext.Data == NULL)
 	{
@@ -79,124 +50,63 @@ int AllocateMemory(PPROGRAM_CONTEXT ProgramContext)
 	return NO_ERROR;
 }
 
-int ParseFiles(PPROGRAM_CONTEXT ProgramContext)
+int ParseTweetStrings(PPROGRAM_CONTEXT ProgramContext)
 {
 	int Result = NO_ERROR;
-	PTWEET DataPointer = ProgramContext->NodeContext.Data;
+	TWEET_PARSING_CONTEXT TweetParsingContext;
 	
 	uint64_t StartingTweetID = ProgramContext->NodeContext.NodeID * ProgramContext->NodeContext.ElementsPerNode;
-	uint64_t EndTweetID = StartingTweetID + ProgramContext->NodeContext.ElementsPerNode - 1;
+	uint64_t TweetID = StartingTweetID;
 	
-	uint64_t FirstFileID = StartingTweetID / ProgramContext->TweetsPerFile;
-	uint64_t LastFileID = EndTweetID / ProgramContext->TweetsPerFile;
+	PWSTRING Tweet = ProgramContext->Tweets + TweetID; 
 	
-	for(uint64_t FileID = FirstFileID; FileID <= LastFileID; FileID++)
+	wprintf(L"Node %i: Parsing %"PRIu64" Tweets \n", ProgramContext->NodeContext.NodeID, ProgramContext->NodeContext.ElementsPerNode);
+		
+	for(PTWEET DataPointer = ProgramContext->NodeContext.Data; DataPointer != ProgramContext->NodeContext.Data + ProgramContext->NodeContext.ElementsPerNode; DataPointer++,TweetID++,Tweet++)
 	{
-		uint64_t StartingLine = (FileID == FirstFileID) ? (StartingTweetID - (FirstFileID * ProgramContext->TweetsPerFile)) : 0 ;
-		uint64_t LastLine = (FileID == LastFileID) ? (EndTweetID - (LastFileID * ProgramContext->TweetsPerFile)) : ProgramContext->TweetsPerFile - 1;
-		
-		wprintf(L"Node %i: Parsing File %"PRIu64" from %"PRIu64" to %"PRIu64"\n", ProgramContext->NodeContext.NodeID, FileID, StartingLine, LastLine);
-		
-		Result = ParseFile(ProgramContext, &DataPointer, FileID, StartingLine, LastLine);
+		Result = ParseTweet(ProgramContext, &TweetParsingContext, Tweet, DataPointer, TweetID);
 		if(Result != NO_ERROR)
 		{
 			return Result;
 		}
-		
-		wprintf(L"Node %i: Done Parsing File %"PRIu64"\n", ProgramContext->NodeContext.NodeID, FileID);
-		
 	}
+	
+	wprintf(L"Node %i: Done Parsing Tweets \n", ProgramContext->NodeContext.NodeID);
 	
 	return Result;
 }
 
-int ParseFile(PPROGRAM_CONTEXT ProgramContext, PTWEET * DataPointer, uint64_t FileID, uint64_t StartingLine, uint64_t LastLine)
+int ParseTweet(PPROGRAM_CONTEXT ProgramContext, PTWEET_PARSING_CONTEXT TweetParsingContext, PWSTRING TweetString, PTWEET Tweet, uint64_t TweetID)
 {
-	TWEET_PARSING_CONTEXT TweetParsingContext;
-	TweetParsingContext.FileID = FileID;
-	int Result = NO_ERROR;
-	uint64_t LineNumber = 0;
-	
-	//Get Memory for Filename + the point + the FileID
-	uint32_t NumberOfDigits = log10(FileID) + 1;
-	uint32_t FilenameLength = strlen(ProgramContext->Filename);
-	char * FilenameBuffer = malloc(FilenameLength + NumberOfDigits + 1);
-	
-	sprintf(FilenameBuffer, "%s.%"PRIu64"", ProgramContext->Filename, FileID);
-	
-	//Open File
-	TweetParsingContext.File = fopen(FilenameBuffer, "r");
-	if(TweetParsingContext.File == NULL)
-	{
-		wprintf(L"Error on Node %i: Unable to open File %s\n", ProgramContext->NodeContext.NodeID, FilenameBuffer);
-		free(FilenameBuffer);
-		return ERROR_UNABLE_TO_OPEN_FILE;
-	}
-	
-	free(FilenameBuffer);
-	
-	//Go to Start Line
-	while(LineNumber < StartingLine)
-	{
-		while(fgetc(TweetParsingContext.File) != '\n');
-		LineNumber++;
-	}
-	
-	//Parse Lines
-	for(; LineNumber <= LastLine; LineNumber++)
-	{
-		ParseTweetLine(&TweetParsingContext, ProgramContext->SearchTerm, (*DataPointer), &ProgramContext->NodeContext);
-		(*DataPointer)++;
-	}
-	
-	//Close File
-	fclose(TweetParsingContext.File);
-	
-	return Result;
-}
-
-
-int ParseTweetLine(PTWEET_PARSING_CONTEXT TweetParsingContext, const wchar_t * SearchTerm, PTWEET Tweet, PNODE_CONTEXT NodeContext)
-{
+	const wchar_t * SearchTermPointer = ProgramContext->SearchTerm;
 	Tweet->Size = 0;
 	Tweet->SearchTermValue = 0;
+	Tweet->NumberOfDifferentUnicodes = 0;
+	Tweet->TweetStringID = TweetID;
 	
 	TweetParsingContext->NumberOfDifferentUnicodes = 0;
 	
-	wint_t ReadChar;
-	const wchar_t * SearchTermPointer = SearchTerm;
-	wchar_t * WritePointer = TweetParsingContext->TweetBuffer; 
-	
-	while((ReadChar = fgetwc(TweetParsingContext->File)) != WEOF)
+	for(wchar_t * ReadPointer = (*TweetString); (*ReadPointer) != '\0'; ReadPointer++)
 	{
-		if(ReadChar == '\n')
-		{
-			(*WritePointer) = '\0'; 
-			break;
-		}
-		
-		(*WritePointer++) = ReadChar; 
-		
 		//Unicode Appearance
-		AddCharacterToUnicodeAppearance(ReadChar, TweetParsingContext);
+		AddCharacterToUnicodeAppearance((*ReadPointer), TweetParsingContext);
 		
 		//SearchTerm Substring
 		//If unequal out pointer to first position so it is checked against first search term character
-		if((*SearchTermPointer) != ReadChar)
+		if((*SearchTermPointer) != (*ReadPointer))
 		{
-			SearchTermPointer = SearchTerm;
+			SearchTermPointer = ProgramContext->SearchTerm;
 		}
 		
-		if((*SearchTermPointer) == ReadChar)
+		if((*SearchTermPointer) == (*ReadPointer))
 		{
 			SearchTermPointer++;
 			if((*SearchTermPointer) == '\0')
 			{
-				SearchTermPointer = SearchTerm;
+				SearchTermPointer = ProgramContext->SearchTerm;
 				Tweet->SearchTermValue++;
 			}
-		}
-	
+		}	
 		
 		Tweet->Size++;
 	}
@@ -207,28 +117,14 @@ int ParseTweetLine(PTWEET_PARSING_CONTEXT TweetParsingContext, const wchar_t * S
 	Tweet->UnicodeAppearance = malloc(NumberOfBytes);
 	if(Tweet->UnicodeAppearance == NULL)
 	{
-		wprintf(L"Error on Node %i: Out of Memory\n", NodeContext->NodeID);
+		wprintf(L"Error on Node %i: Out of Memory\n", ProgramContext->NodeContext.NodeID);
 		return ERROR_OUT_OF_MEMORY;
 	}
 	memcpy(Tweet->UnicodeAppearance, TweetParsingContext->UnicodeAppearance, NumberOfBytes);
 
-	UnicodeAppearanceMemory += NumberOfBytes;
-	UnicodeAppearanceFields += TweetParsingContext->NumberOfDifferentUnicodes;
-
-	// Copy Tweet from Buffer
-	// Tweet Size + 1 for the null terminator
-	uint64_t NumberOfTweetBytes = (Tweet->Size + 1) * sizeof(wchar_t);
-	Tweet->Tweet = malloc(NumberOfTweetBytes);
-	if(Tweet->Tweet == NULL)
-	{
-		wprintf(L"Error on Node %i: Out of Memory\n", NodeContext->NodeID);
-		return ERROR_OUT_OF_MEMORY;
-	}
+	ProgramContext->NodeContext.BenchmarkContext.UnicodeAppearanceMemory += NumberOfBytes;
+	ProgramContext->NodeContext.BenchmarkContext.UnicodeAppearanceFields += TweetParsingContext->NumberOfDifferentUnicodes;
 	
-	memcpy(Tweet->Tweet, TweetParsingContext->TweetBuffer, NumberOfTweetBytes);
-	
-	TweetStringMemory += NumberOfTweetBytes;
-
 	return NO_ERROR;
 }
 

@@ -1,5 +1,5 @@
 #pragma once
 
-#include "Node.h"
+#include "ForwardDeclarations.h"
 
 void Sort(PNODE_CONTEXT NodeContext);

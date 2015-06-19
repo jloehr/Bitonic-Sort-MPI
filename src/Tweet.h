@@ -4,7 +4,9 @@
 #include <stdio.h>
 #include <wchar.h>
 
-#define MAX_TWEET_CHARACTER_COUNT 450
+#include "ForwardDeclarations.h"
+
+#define MAX_TWEET_CHARACTER_COUNT 512
 
 typedef struct _UNICODE_APPEARANCE
 {
@@ -20,11 +22,11 @@ typedef struct _TWEET {
 	uint16_t NumberOfDifferentUnicodes;
 	UNICODE_APPEARANCE * UnicodeAppearance;
 
-	wchar_t * Tweet;
+	uint64_t TweetStringID;
 	
 } TWEET, * PTWEET;
 
-void PrintTweet(PTWEET Tweet);
+void PrintTweet(PPROGRAM_CONTEXT ProgramContext, PTWEET Tweet);
 void PrintTweetDebugInfoToStream(FILE * Stream, PTWEET Tweet);
 void CleanUpTweet(PTWEET Tweet);
 

@@ -3,6 +3,7 @@
 #include <stdlib.h> 
 
 #include "Tweet.h"
+#include "Node.h"
 
 void Sort(PNODE_CONTEXT NodeContext)
 {

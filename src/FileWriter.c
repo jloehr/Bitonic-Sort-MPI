@@ -1,8 +1,5 @@
 #include "FileWriter.h"
 
-#include <sys/mman.h>
-#include <sys/stat.h>
-#include <fcntl.h>
 #include <unistd.h>
 #include <stdlib.h>
 #include <wchar.h>
@@ -13,11 +10,11 @@
 #include "ErrorCodes.h"
 
 #include "Tweet.h"
+#include "Node.h"
+#include "Program.h"
 
-int OpenOutputFile(PPROGRAM_CONTEXT ProgramContext, PFILE_WRITER_CONTEXT FileWriterContext);
-void WriteTweetsToFile(PNODE_CONTEXT NodeContext, PFILE_WRITER_CONTEXT FileWriterContext);
-int MMapInputFiles(PPROGRAM_CONTEXT ProgramContext, PFILE_WRITER_CONTEXT FileWriterContext);
-int MUnMapInputFiles(PPROGRAM_CONTEXT ProgramContext, PFILE_WRITER_CONTEXT FileWriterContext);
+static int OpenOutputFile(PPROGRAM_CONTEXT ProgramContext, PFILE_WRITER_CONTEXT FileWriterContext);
+static void WriteTweetsToFile(PPROGRAM_CONTEXT ProgramContext, PFILE_WRITER_CONTEXT FileWriterContext);
 
 int WriteOutResults(PPROGRAM_CONTEXT ProgramContext)
 {
@@ -32,13 +29,12 @@ int WriteOutResults(PPROGRAM_CONTEXT ProgramContext)
 	}	
 	
 	//Write all Elements
-	WriteTweetsToFile(&ProgramContext->NodeContext, &FileWriterContext);
+	WriteTweetsToFile(ProgramContext, &FileWriterContext);
 	
 	//close file
 	fclose(FileWriterContext.OutputFile);
 
 	return Result;
-	
 }
 
 int OpenOutputFile(PPROGRAM_CONTEXT ProgramContext, PFILE_WRITER_CONTEXT FileWriterContext)
@@ -65,14 +61,14 @@ int OpenOutputFile(PPROGRAM_CONTEXT ProgramContext, PFILE_WRITER_CONTEXT FileWri
 }
 
 
-void WriteTweetsToFile(PNODE_CONTEXT NodeContext, PFILE_WRITER_CONTEXT FileWriterContext)
+void WriteTweetsToFile(PPROGRAM_CONTEXT ProgramContext, PFILE_WRITER_CONTEXT FileWriterContext)
 {
-	for(PTWEET Tweet = NodeContext->Data; Tweet != &(NodeContext->Data[NodeContext->ElementsPerNode]); Tweet++)
+	for(PTWEET Tweet = ProgramContext->NodeContext.Data; Tweet != ProgramContext->NodeContext.Data + ProgramContext->NodeContext.ElementsPerNode; Tweet++)
 	{		
 #ifdef WRITE_DEBUG_INFO_TO_FILE
 		PrintTweetDebugInfoToStream(FileWriterContext->OutputFile, Tweet);
 #endif	
-		fputws(Tweet->Tweet, FileWriterContext->OutputFile);
+		fputws(ProgramContext->Tweets[Tweet->TweetStringID], FileWriterContext->OutputFile);
 		fputwc(L'\n', FileWriterContext->OutputFile);
 	}	
 }
