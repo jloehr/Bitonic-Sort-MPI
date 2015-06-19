@@ -1,6 +1,6 @@
 
 CC = mpicc
-CFLAGS = -O3 -g -std=c99
+CFLAGS = -O3 -g -std=c11 -Wall
 LDFLAGS = -lm
 
 SOURCEDIR = ./src/
