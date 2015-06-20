@@ -251,12 +251,6 @@ int AddCharacterToUnicodeAppearance(wint_t ReadChar, PPROGRAM_CONTEXT ProgramCon
 				return Result;
 			}
 			
-			//	 0	 1	 2	 3
-			// | a | c | d | e
-			//
-			// Start = 0
-			// Number = 4
-			//
 			uint64_t UnicodeAppearanceFieldsToMove = (TweetParsingContext->CurrentUnicodeAppearanceStart + TweetParsingContext->CurrentNumberOfDifferentUnicodes) - UnicodeAppearance;
 			
 			memmove(UnicodeAppearance + 1, UnicodeAppearance, UnicodeAppearanceFieldsToMove * sizeof(UNICODE_APPEARANCE));

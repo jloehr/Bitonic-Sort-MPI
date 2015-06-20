@@ -1,5 +1,6 @@
 #include "BitonicSort.h"
 
+#include <sys/mman.h>
 #include <stdlib.h> 
 
 #include "Program.h"
@@ -12,8 +13,12 @@ void Sort(PPROGRAM_CONTEXT ProgramContext, PNODE_CONTEXT NodeContext)
 {
     QsortProgramContext = ProgramContext;
     
-	//Sort Node local via qsort
+    mlock(ProgramContext->UnicodeAppearances, ProgramContext->UnicodeAppearancesSize);
+	
+    //Sort Node local via qsort
 	qsort(NodeContext->Data, NodeContext->ElementsPerNode, sizeof(TWEET), CompareTweets);
+    
+    munlock(ProgramContext->UnicodeAppearances, ProgramContext->UnicodeAppearancesSize);
     
     QsortProgramContext = NULL;
 }

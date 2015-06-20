@@ -1,3 +1,4 @@
+#include <sys/mman.h>
 #include <mpi.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -64,6 +65,8 @@ int main(int argc, char * argv[])
     
     DoneInitializing(&ProgramContext.NodeContext.BenchmarkContext);
     
+	mlock(ProgramContext.NodeContext.Data, ProgramContext.NodeContext.ElementsPerNode * sizeof(TWEET));
+    
     //Start Bitonic Sort
     Sort(&ProgramContext, &ProgramContext.NodeContext);
     
@@ -75,6 +78,8 @@ int main(int argc, char * argv[])
     {
     	return Status;
     }
+    
+	munlock(ProgramContext.NodeContext.Data, ProgramContext.NodeContext.ElementsPerNode * sizeof(TWEET));
     
     DoneWriting(&ProgramContext.NodeContext.BenchmarkContext);
     PrintTimes(&ProgramContext.NodeContext.BenchmarkContext);
