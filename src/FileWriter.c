@@ -68,7 +68,7 @@ void WriteTweetsToFile(PPROGRAM_CONTEXT ProgramContext, PFILE_WRITER_CONTEXT Fil
 #ifdef WRITE_DEBUG_INFO_TO_FILE
 		PrintTweetDebugInfoToStream(FileWriterContext->OutputFile, Tweet);
 #endif	
-		fputws(ProgramContext->Tweets[Tweet->TweetStringID], FileWriterContext->OutputFile);
+		fputws(ProgramContext->TweetStrings + Tweet->TweetStringOffset, FileWriterContext->OutputFile);
 		fputwc(L'\n', FileWriterContext->OutputFile);
 	}	
 }

@@ -12,7 +12,7 @@
 
 static int AllocateMemory(PPROGRAM_CONTEXT ProgramContext);
 static int ParseTweetStrings(PPROGRAM_CONTEXT ProgramContext);
-static int ParseTweet(PPROGRAM_CONTEXT ProgramContext, PTWEET_PARSING_CONTEXT TweetParsingContext, PWSTRING TweetString, PTWEET Tweet, uint64_t TweetID);
+static int ParseTweet(PPROGRAM_CONTEXT ProgramContext, PTWEET_PARSING_CONTEXT TweetParsingContext, PTWEET Tweet);
 static void AddCharacterToUnicodeAppearance(wint_t ReadChar, PTWEET_PARSING_CONTEXT Tweet);
 
 int ParseTweets(PPROGRAM_CONTEXT ProgramContext)
@@ -35,18 +35,6 @@ int ParseTweets(PPROGRAM_CONTEXT ProgramContext)
 
 int AllocateMemory(PPROGRAM_CONTEXT ProgramContext)
 {
-	uint64_t DataSize = ProgramContext->NodeContext.ElementsPerNode * sizeof(TWEET);
-	
-	//Allocate Space
-	ProgramContext->NodeContext.Data = malloc(DataSize);
-	ProgramContext->NodeContext.BenchmarkContext.TweetDataMemory = DataSize;
-	
-	if(ProgramContext->NodeContext.Data == NULL)
-	{
-		wprintf(L"Node %i: failed to allocate Data Memory\n", ProgramContext->NodeContext.NodeID);
-		return ERROR_NOT_ENOUGH_MEMORY;
-	}
-	
 	return NO_ERROR;
 }
 
@@ -54,17 +42,12 @@ int ParseTweetStrings(PPROGRAM_CONTEXT ProgramContext)
 {
 	int Result = NO_ERROR;
 	TWEET_PARSING_CONTEXT TweetParsingContext;
-	
-	uint64_t StartingTweetID = ProgramContext->NodeContext.NodeID * ProgramContext->NodeContext.ElementsPerNode;
-	uint64_t TweetID = StartingTweetID;
-	
-	PWSTRING Tweet = ProgramContext->Tweets + TweetID; 
-	
+
 	wprintf(L"Node %i: Parsing %"PRIu64" Tweets \n", ProgramContext->NodeContext.NodeID, ProgramContext->NodeContext.ElementsPerNode);
 		
-	for(PTWEET DataPointer = ProgramContext->NodeContext.Data; DataPointer != ProgramContext->NodeContext.Data + ProgramContext->NodeContext.ElementsPerNode; DataPointer++,TweetID++,Tweet++)
+	for(PTWEET TweetPointer = ProgramContext->NodeContext.Data; TweetPointer != ProgramContext->NodeContext.Data + ProgramContext->NodeContext.ElementsPerNode; TweetPointer++)
 	{
-		Result = ParseTweet(ProgramContext, &TweetParsingContext, Tweet, DataPointer, TweetID);
+		Result = ParseTweet(ProgramContext, &TweetParsingContext, TweetPointer);
 		if(Result != NO_ERROR)
 		{
 			return Result;
@@ -76,17 +59,15 @@ int ParseTweetStrings(PPROGRAM_CONTEXT ProgramContext)
 	return Result;
 }
 
-int ParseTweet(PPROGRAM_CONTEXT ProgramContext, PTWEET_PARSING_CONTEXT TweetParsingContext, PWSTRING TweetString, PTWEET Tweet, uint64_t TweetID)
+int ParseTweet(PPROGRAM_CONTEXT ProgramContext, PTWEET_PARSING_CONTEXT TweetParsingContext, PTWEET Tweet)
 {
 	const wchar_t * SearchTermPointer = ProgramContext->SearchTerm;
-	Tweet->Size = 0;
 	Tweet->SearchTermValue = 0;
 	Tweet->NumberOfDifferentUnicodes = 0;
-	Tweet->TweetStringID = TweetID;
 	
 	TweetParsingContext->NumberOfDifferentUnicodes = 0;
 	
-	for(wchar_t * ReadPointer = (*TweetString); (*ReadPointer) != '\0'; ReadPointer++)
+	for(wchar_t * ReadPointer = (ProgramContext->TweetStrings + Tweet->TweetStringOffset) ; (*ReadPointer) != '\0'; ReadPointer++)
 	{
 		//Unicode Appearance
 		AddCharacterToUnicodeAppearance((*ReadPointer), TweetParsingContext);

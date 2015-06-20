@@ -22,7 +22,7 @@ typedef struct _TWEET {
 	uint16_t NumberOfDifferentUnicodes;
 	UNICODE_APPEARANCE * UnicodeAppearance;
 
-	uint64_t TweetStringID;
+	uint64_t TweetStringOffset;
 	
 } TWEET, * PTWEET;
 

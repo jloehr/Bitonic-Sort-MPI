@@ -3,25 +3,23 @@
 #include <stdio.h>
 #include <wchar.h>
 
+#include "Program.h"
+
 void InitBenchmark(PBENCHMARK_CONTEXT BenchmarkContext)
 {
-	BenchmarkContext->TweetArrayMemory = 0;
-	BenchmarkContext->TweetStringsMemory = 0;
 	BenchmarkContext->TweetDataMemory = 0;
 	BenchmarkContext->UnicodeAppearanceMemory = 0;
 	BenchmarkContext->UnicodeAppearanceFields = 0;
 }
 
-void PrintMemoryConsumption(PBENCHMARK_CONTEXT BenchmarkContext)
+void PrintMemoryConsumption(PPROGRAM_CONTEXT ProgramContext, PBENCHMARK_CONTEXT BenchmarkContext)
 {
-	uint64_t Total = BenchmarkContext->TweetArrayMemory;
-	Total += BenchmarkContext->TweetStringsMemory;
+	uint64_t Total = ProgramContext->TweetStringsSize;
 	Total += BenchmarkContext->TweetDataMemory;
 	Total += BenchmarkContext->UnicodeAppearanceMemory;
 	
 	wprintf(L"\n");
-	wprintf(L"Tweet Array Memory:\t%12"PRIu64"\n", BenchmarkContext->TweetArrayMemory);
-	wprintf(L"Tweet String Memory:\t%12"PRIu64"\n", BenchmarkContext->TweetStringsMemory);
+	wprintf(L"Tweet String Memory:\t%12"PRIu64"\n", ProgramContext->TweetStringsSize);
 	wprintf(L"Tweet Data Memory:\t%12"PRIu64"\n", BenchmarkContext->TweetDataMemory);
 	wprintf(L"Unicode Appearance Memory:%10"PRIu64"\n", BenchmarkContext->UnicodeAppearanceMemory);
 	wprintf(L"Unicode Appearance Fields:%10"PRIu64"\n", BenchmarkContext->UnicodeAppearanceFields);

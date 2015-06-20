@@ -7,8 +7,7 @@
 
 #include "Node.h"
 
-typedef wchar_t * WSTRING;
-typedef WSTRING * PWSTRING;
+typedef wchar_t * PWSTRING;
 
 typedef struct _PROGRAM_CONTEXT 
 {
@@ -18,7 +17,10 @@ typedef struct _PROGRAM_CONTEXT
 	uint64_t TotalAmountOfTweets;
 	const wchar_t * SearchTerm;
 	
-	PWSTRING Tweets;
+	uint64_t PageSize;
+	
+	uint64_t TweetStringsSize;
+	PWSTRING TweetStrings;
 	NODE_CONTEXT NodeContext;
 	
 } PROGRAM_CONTEXT, * PPROGRAM_CONTEXT;

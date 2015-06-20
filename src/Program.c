@@ -1,5 +1,6 @@
 #include "Program.h"
 
+#include <unistd.h>
 #include <stdlib.h>
 
 #include "ArgumentParsing.h"
@@ -15,13 +16,20 @@ int InitProgramContext(PPROGRAM_CONTEXT ProgramContext, int argc, char * argv[])
 	ProgramContext->TweetsPerFile = 0;
 	ProgramContext->TotalAmountOfTweets = 0;
 	ProgramContext->SearchTerm = NULL;
-	ProgramContext->Tweets = NULL;
+	ProgramContext->TweetStringsSize = 0;
+	ProgramContext->TweetStrings = NULL;
 	
 	Result = ParseArguments(argc, argv, ProgramContext);
 	
 	//Tweets Per Node
 	ProgramContext->TotalAmountOfTweets = ProgramContext->TweetsPerFile * ProgramContext->NumberOfFiles;
 	ProgramContext->NodeContext.ElementsPerNode = ProgramContext->TotalAmountOfTweets/ProgramContext->NodeContext.NumberOfNodes;
+	
+	ProgramContext->PageSize = getpagesize();
+	if(ProgramContext->PageSize == 0)
+	{
+		ProgramContext->PageSize = 4*1024;
+	}
 	
 	return Result;
 }
@@ -38,14 +46,10 @@ void FinalizeProgramContext(PPROGRAM_CONTEXT ProgramContext)
 	}
 	
 	//Free the Tweet Strings
-	if(ProgramContext->Tweets != NULL)
+	if(ProgramContext->TweetStrings != NULL)
 	{
-		for(PWSTRING DataPointer = ProgramContext->Tweets; DataPointer != ProgramContext->Tweets + ProgramContext->TotalAmountOfTweets; DataPointer++)
-		{
-			free(*DataPointer);
-		}
-		
-		free(ProgramContext->Tweets);
-		ProgramContext->Tweets = NULL;
+		free(ProgramContext->TweetStrings);
+		ProgramContext->TweetStringsSize = 0;
+		ProgramContext->TweetStrings = NULL;
 	}
 }

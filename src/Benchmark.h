@@ -3,11 +3,11 @@
 #include <time.h>
 #include "Int.h"
 
+#include "ForwardDeclarations.h"
+
 typedef struct _BENCHMARK_CONTEXT 
 {
 	//Memory
-	uint64_t TweetArrayMemory;
-	uint64_t TweetStringsMemory;
 	uint64_t TweetDataMemory;
 	uint64_t UnicodeAppearanceMemory;
 	uint64_t UnicodeAppearanceFields;
@@ -22,7 +22,7 @@ typedef struct _BENCHMARK_CONTEXT
 } BENCHMARK_CONTEXT, * PBENCHMARK_CONTEXT;
 
 void InitBenchmark(PBENCHMARK_CONTEXT BenchmarkContext);
-void PrintMemoryConsumption(PBENCHMARK_CONTEXT BenchmarkContext);
+void PrintMemoryConsumption(PPROGRAM_CONTEXT ProgramContext, PBENCHMARK_CONTEXT BenchmarkContext);
 void StartBenchmark(PBENCHMARK_CONTEXT BenchmarkContext);
 void DoneReading(PBENCHMARK_CONTEXT BenchmarkContext);
 void DoneInitializing(PBENCHMARK_CONTEXT BenchmarkContext);

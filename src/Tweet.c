@@ -9,7 +9,7 @@
 void PrintTweet(PPROGRAM_CONTEXT ProgramContext, PTWEET Tweet)
 {
 	PrintTweetDebugInfoToStream(stdout, Tweet);
-	wprintf(L"%S\n", ProgramContext->Tweets[Tweet->TweetStringID]);
+	wprintf(L"%S\n", ProgramContext->TweetStrings + Tweet->TweetStringOffset);
 }
 
 void PrintTweetDebugInfoToStream(FILE * Stream, PTWEET Tweet)
