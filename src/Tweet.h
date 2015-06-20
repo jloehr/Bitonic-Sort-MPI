@@ -20,14 +20,13 @@ typedef struct _TWEET {
 	uint8_t SearchTermValue;
 	uint8_t Size;
 	uint16_t NumberOfDifferentUnicodes;
-	UNICODE_APPEARANCE * UnicodeAppearance;
+	uint64_t UnicodeAppearanceOffset;
 
 	uint64_t TweetStringOffset;
 	
 } TWEET, * PTWEET;
 
 void PrintTweet(PPROGRAM_CONTEXT ProgramContext, PTWEET Tweet);
-void PrintTweetDebugInfoToStream(FILE * Stream, PTWEET Tweet);
-void CleanUpTweet(PTWEET Tweet);
+void PrintTweetDebugInfoToStream(FILE * Stream, PPROGRAM_CONTEXT ProgramContext, PTWEET Tweet);
 
 int CompareTweets(const void * a, const void * b);

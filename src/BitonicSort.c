@@ -2,13 +2,20 @@
 
 #include <stdlib.h> 
 
+#include "Program.h"
 #include "Tweet.h"
 #include "Node.h"
 
-void Sort(PNODE_CONTEXT NodeContext)
+PPROGRAM_CONTEXT QsortProgramContext = NULL;
+
+void Sort(PPROGRAM_CONTEXT ProgramContext, PNODE_CONTEXT NodeContext)
 {
+    QsortProgramContext = ProgramContext;
+    
 	//Sort Node local via qsort
 	qsort(NodeContext->Data, NodeContext->ElementsPerNode, sizeof(TWEET), CompareTweets);
+    
+    QsortProgramContext = NULL;
 }
 /*
 void BitonicSort()

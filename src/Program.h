@@ -21,6 +21,8 @@ typedef struct _PROGRAM_CONTEXT
 	
 	uint64_t TweetStringsSize;
 	PWSTRING TweetStrings;
+	uint64_t UnicodeAppearancesSize;
+	PUNICODE_APPEARANCE UnicodeAppearances;
 	NODE_CONTEXT NodeContext;
 	
 } PROGRAM_CONTEXT, * PPROGRAM_CONTEXT;

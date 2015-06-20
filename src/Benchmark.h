@@ -9,8 +9,6 @@ typedef struct _BENCHMARK_CONTEXT
 {
 	//Memory
 	uint64_t TweetDataMemory;
-	uint64_t UnicodeAppearanceMemory;
-	uint64_t UnicodeAppearanceFields;
 	
 	//Times
 	clock_t Start;

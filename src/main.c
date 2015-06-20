@@ -60,12 +60,12 @@ int main(int argc, char * argv[])
     	return Status;
     }
     
-    PrintMemoryConsumption(&ProgramContext.NodeContext.BenchmarkContext);
+    PrintMemoryConsumption(&ProgramContext, &ProgramContext.NodeContext.BenchmarkContext);
     
     DoneInitializing(&ProgramContext.NodeContext.BenchmarkContext);
     
     //Start Bitonic Sort
-    Sort(&ProgramContext.NodeContext);
+    Sort(&ProgramContext, &ProgramContext.NodeContext);
     
     DoneSorting(&ProgramContext.NodeContext.BenchmarkContext);
     

@@ -18,6 +18,8 @@ int InitProgramContext(PPROGRAM_CONTEXT ProgramContext, int argc, char * argv[])
 	ProgramContext->SearchTerm = NULL;
 	ProgramContext->TweetStringsSize = 0;
 	ProgramContext->TweetStrings = NULL;
+	ProgramContext->UnicodeAppearancesSize = 0;
+	ProgramContext->UnicodeAppearances = NULL;
 	
 	Result = ParseArguments(argc, argv, ProgramContext);
 	
@@ -51,5 +53,13 @@ void FinalizeProgramContext(PPROGRAM_CONTEXT ProgramContext)
 		free(ProgramContext->TweetStrings);
 		ProgramContext->TweetStringsSize = 0;
 		ProgramContext->TweetStrings = NULL;
+	}
+	
+	//Free the UnicodeAppearances
+	if(ProgramContext->UnicodeAppearances != NULL)
+	{
+		free(ProgramContext->UnicodeAppearances);
+		ProgramContext->UnicodeAppearancesSize = 0;
+		ProgramContext->UnicodeAppearances = NULL;
 	}
 }

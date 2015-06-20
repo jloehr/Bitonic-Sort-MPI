@@ -4,25 +4,24 @@
 #include <wchar.h>
 
 #include "Program.h"
+#include "Tweet.h"
 
 void InitBenchmark(PBENCHMARK_CONTEXT BenchmarkContext)
 {
 	BenchmarkContext->TweetDataMemory = 0;
-	BenchmarkContext->UnicodeAppearanceMemory = 0;
-	BenchmarkContext->UnicodeAppearanceFields = 0;
 }
 
 void PrintMemoryConsumption(PPROGRAM_CONTEXT ProgramContext, PBENCHMARK_CONTEXT BenchmarkContext)
 {
 	uint64_t Total = ProgramContext->TweetStringsSize;
 	Total += BenchmarkContext->TweetDataMemory;
-	Total += BenchmarkContext->UnicodeAppearanceMemory;
+	Total += ProgramContext->UnicodeAppearancesSize;
 	
 	wprintf(L"\n");
 	wprintf(L"Tweet String Memory:\t%12"PRIu64"\n", ProgramContext->TweetStringsSize);
 	wprintf(L"Tweet Data Memory:\t%12"PRIu64"\n", BenchmarkContext->TweetDataMemory);
-	wprintf(L"Unicode Appearance Memory:%10"PRIu64"\n", BenchmarkContext->UnicodeAppearanceMemory);
-	wprintf(L"Unicode Appearance Fields:%10"PRIu64"\n", BenchmarkContext->UnicodeAppearanceFields);
+	wprintf(L"Unicode Appearance Memory:%10"PRIu64"\n", ProgramContext->UnicodeAppearancesSize);
+	wprintf(L"Unicode Appearance Fields:%10"PRIu64"\n", ProgramContext->UnicodeAppearancesSize / sizeof(UNICODE_APPEARANCE));
 	wprintf(L"------------------------------------\n");
 	wprintf(L"Total:\t\t\t%12"PRIu64"\n", Total);
 	wprintf(L"\n");

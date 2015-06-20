@@ -8,12 +8,8 @@
 #include "ErrorCodes.h"
 
 #include "Benchmark.h"
-#include "Tweet.h"
-#include "Node.h"
-#include "Program.h"
 
 static int InitFileReaderContext(PPROGRAM_CONTEXT ProgramContext, PFILE_READER_CONTEXT FileReaderContext);
-static int AllocateMemory(PPROGRAM_CONTEXT ProgramContext, PFILE_READER_CONTEXT FileReaderContext);
 static int AllocateStringMemory(PPROGRAM_CONTEXT ProgramContext, PFILE_READER_CONTEXT FileReaderContext);
 static int ReadInFiles(PPROGRAM_CONTEXT ProgramContext, PFILE_READER_CONTEXT FileReaderContext);
 static int ReadInFile(PPROGRAM_CONTEXT ProgramContext, PFILE_READER_CONTEXT FileReaderContext, uint64_t FileID);
@@ -31,7 +27,7 @@ int ReadInTweets(PPROGRAM_CONTEXT ProgramContext)
 		return Result;
 	}
 	
-	Result = AllocateMemory(ProgramContext, &FileReaderContext);
+	Result = AllocateStringMemory(ProgramContext, &FileReaderContext);
 	if(Result != NO_ERROR)
 	{
 		return Result;
@@ -51,39 +47,7 @@ int InitFileReaderContext(PPROGRAM_CONTEXT ProgramContext, PFILE_READER_CONTEXT 
 	FileReaderContext->EndOfBlock = 0;
 	FileReaderContext->WritePointer = NULL;
 	
-	FileReaderContext->CurrentTweetNumber = 0;
-	FileReaderContext->NodeTweetNumberStart = ProgramContext->NodeContext.NodeID * ProgramContext->NodeContext.ElementsPerNode;
-	FileReaderContext->NodeTweetNumberEnd = FileReaderContext->NodeTweetNumberStart + ProgramContext->NodeContext.ElementsPerNode;
-	FileReaderContext->CurrentTweet = NULL;
-	
 	return NO_ERROR;
-}
-
-int AllocateMemory(PPROGRAM_CONTEXT ProgramContext, PFILE_READER_CONTEXT FileReaderContext)
-{	
-	int Result = NO_ERROR;
-	
-	//Alloctate Size for the Tweet Data
-	uint64_t TweetDataSize = ProgramContext->NodeContext.ElementsPerNode * sizeof(TWEET);
-	
-	//Allocate Space
-	ProgramContext->NodeContext.Data = malloc(TweetDataSize);
-	ProgramContext->NodeContext.BenchmarkContext.TweetDataMemory = TweetDataSize;
-	
-	if(ProgramContext->NodeContext.Data == NULL)
-	{
-		wprintf(L"Node %i: failed to allocate Data Memory\n", ProgramContext->NodeContext.NodeID);
-		return ERROR_NOT_ENOUGH_MEMORY;
-	}
-	
-	//Allocate Starting Space for the Strings
-	Result = AllocateStringMemory(ProgramContext, FileReaderContext);
-	if(Result != NO_ERROR)
-	{
-		return Result;
-	}
-	
-	return Result;
 }
 
 int AllocateStringMemory(PPROGRAM_CONTEXT ProgramContext, PFILE_READER_CONTEXT FileReaderContext)
@@ -108,7 +72,6 @@ int AllocateStringMemory(PPROGRAM_CONTEXT ProgramContext, PFILE_READER_CONTEXT F
 int ReadInFiles(PPROGRAM_CONTEXT ProgramContext, PFILE_READER_CONTEXT FileReaderContext)
 {
 	int Result = NO_ERROR;
-	FileReaderContext->CurrentTweet = ProgramContext->NodeContext.Data;
 	
 	for(uint64_t FileID = 0; FileID < ProgramContext->NumberOfFiles; FileID++)
 	{
@@ -149,7 +112,7 @@ static int ReadInFile(PPROGRAM_CONTEXT ProgramContext, PFILE_READER_CONTEXT File
 	free(FilenameBuffer);
 	
 	//Parse Lines
-	for(; FileReaderContext->CurrentTweetNumber < ((FileID + 1) * ProgramContext->TweetsPerFile); FileReaderContext->CurrentTweetNumber++)
+	for(uint64_t LineNumber = 0; LineNumber < ProgramContext->TweetsPerFile; LineNumber++)
 	{
 		Result = ReadInLine(ProgramContext, FileReaderContext);
 		if(Result != NO_ERROR)
@@ -167,20 +130,11 @@ static int ReadInFile(PPROGRAM_CONTEXT ProgramContext, PFILE_READER_CONTEXT File
 int ReadInLine(PPROGRAM_CONTEXT ProgramContext, PFILE_READER_CONTEXT FileReaderContext)
 {
 	int Result = NO_ERROR;
-	bool NodeTweet = ((FileReaderContext->CurrentTweetNumber >= FileReaderContext->NodeTweetNumberStart) && (FileReaderContext->CurrentTweetNumber < FileReaderContext->NodeTweetNumberEnd));
-	uint16_t TweetSize = 0;
 	wint_t ReadCharacter;
-	
-	//Save Starting Offset
-	if(NodeTweet)
-	{
-		FileReaderContext->CurrentTweet->TweetStringOffset = FileReaderContext->WritePointer - ProgramContext->TweetStrings;
-	}
 	
 	//Read Tweet
 	while((ReadCharacter = fgetwc(FileReaderContext->File)) != WEOF)
 	{
-		TweetSize++;
 		if(ReadCharacter == '\n')
 		{
 			Result = WriteCharacterToString(ProgramContext, FileReaderContext, '\0');
@@ -188,7 +142,8 @@ int ReadInLine(PPROGRAM_CONTEXT ProgramContext, PFILE_READER_CONTEXT FileReaderC
 			{
 				return Result;
 			}
-			break;
+			
+			return NO_ERROR;
 		}
 		else
 		{
@@ -202,7 +157,6 @@ int ReadInLine(PPROGRAM_CONTEXT ProgramContext, PFILE_READER_CONTEXT FileReaderC
 	
 	if(ReadCharacter == WEOF)
 	{
-		TweetSize++;
 		Result = WriteCharacterToString(ProgramContext, FileReaderContext, '\0');
 		if(Result != NO_ERROR)
 		{
@@ -210,17 +164,11 @@ int ReadInLine(PPROGRAM_CONTEXT ProgramContext, PFILE_READER_CONTEXT FileReaderC
 		}
 	}
 	
-	if(NodeTweet)
-	{
-		FileReaderContext->CurrentTweet->Size = TweetSize;
-		FileReaderContext->CurrentTweet++;
-	}
-	
 	return NO_ERROR;
 }
 int WriteCharacterToString(PPROGRAM_CONTEXT ProgramContext, PFILE_READER_CONTEXT FileReaderContext, wchar_t Charachter)
 {
-	if((void *)FileReaderContext->WritePointer > (FileReaderContext->EndOfBlock - sizeof(wchar_t)))
+	while((void *)FileReaderContext->WritePointer > (FileReaderContext->EndOfBlock - sizeof(wchar_t)))
 	{
 		int Result = AllocateStringMemory(ProgramContext, FileReaderContext);
 		if(Result != NO_ERROR)

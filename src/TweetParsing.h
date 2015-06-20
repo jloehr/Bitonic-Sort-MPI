@@ -8,8 +8,14 @@
 
 typedef struct _TWEET_PARSING_CONTEXT 
 {
-	uint16_t NumberOfDifferentUnicodes;
-	UNICODE_APPEARANCE UnicodeAppearance[MAX_TWEET_CHARACTER_COUNT];
+	uint64_t CurrentTweetNumber;
+	uint64_t NodeTweetNumberStart;
+	uint64_t NodeTweetNumberEnd;
+	void * EndOfBlock;
+	wchar_t * ReadPointer;
+	uint16_t CurrentNumberOfDifferentUnicodes;
+	PUNICODE_APPEARANCE CurrentUnicodeAppearanceStart;
+	PTWEET CurrentTweet;
 		
 } TWEET_PARSING_CONTEXT, * PTWEET_PARSING_CONTEXT;
 

@@ -8,31 +8,24 @@
 
 void PrintTweet(PPROGRAM_CONTEXT ProgramContext, PTWEET Tweet)
 {
-	PrintTweetDebugInfoToStream(stdout, Tweet);
+	PrintTweetDebugInfoToStream(stdout, ProgramContext, Tweet);
 	wprintf(L"%S\n", ProgramContext->TweetStrings + Tweet->TweetStringOffset);
 }
 
-void PrintTweetDebugInfoToStream(FILE * Stream, PTWEET Tweet)
+void PrintTweetDebugInfoToStream(FILE * Stream, PPROGRAM_CONTEXT ProgramContext, PTWEET Tweet)
 {
 	fwprintf(Stream, L"%3u\t%2u\t", Tweet->Size, Tweet->SearchTermValue);
 	
-	for(PUNICODE_APPEARANCE UnicodeAppearance = Tweet->UnicodeAppearance; UnicodeAppearance != (Tweet->UnicodeAppearance + Tweet->NumberOfDifferentUnicodes); UnicodeAppearance++)
+	for(PUNICODE_APPEARANCE UnicodeAppearance = ProgramContext->UnicodeAppearances + Tweet->UnicodeAppearanceOffset; UnicodeAppearance != (ProgramContext->UnicodeAppearances + Tweet->UnicodeAppearanceOffset + Tweet->NumberOfDifferentUnicodes); UnicodeAppearance++)
 	{
 		fwprintf(Stream, L"%4x: %3u\t", UnicodeAppearance->UnicodeCharacter, UnicodeAppearance->NumberOfAppearance);
 	}
 }
 
-void CleanUpTweet(PTWEET Tweet)
-{
-	if(Tweet->UnicodeAppearance != NULL)
-	{
-		free(Tweet->UnicodeAppearance);
-		Tweet->UnicodeAppearance = NULL;
-	}
-}
-
+extern PPROGRAM_CONTEXT QsortProgramContext;
 int CompareTweets(const void * a, const void * b)
 {	
+	PPROGRAM_CONTEXT ProgramContext = QsortProgramContext;
 	const TWEET * A = a;
 	const TWEET * B = b;
 	
@@ -46,8 +39,9 @@ int CompareTweets(const void * a, const void * b)
 		
 		PUNICODE_APPEARANCE UnicodeAppearanceA, UnicodeAppearanceB;
 		
-		for(UnicodeAppearanceA = A->UnicodeAppearance, UnicodeAppearanceB = B->UnicodeAppearance; 
-			UnicodeAppearanceA != (A->UnicodeAppearance + MinIndex);
+		for(UnicodeAppearanceA = ProgramContext->UnicodeAppearances + A->UnicodeAppearanceOffset,
+			UnicodeAppearanceB = ProgramContext->UnicodeAppearances + B->UnicodeAppearanceOffset; 
+			UnicodeAppearanceA != (ProgramContext->UnicodeAppearances + A->UnicodeAppearanceOffset + MinIndex);
 			UnicodeAppearanceA++, UnicodeAppearanceB++)
 		{
 			if(UnicodeAppearanceA->UnicodeCharacter != UnicodeAppearanceB->UnicodeCharacter)
