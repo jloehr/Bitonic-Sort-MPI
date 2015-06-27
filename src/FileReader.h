@@ -1,15 +1,16 @@
 #pragma once
 
 #include <stdio.h>
-#include <wchar.h>
 
 #include "ForwardDeclarations.h"
-#include "Tweet.h"
+
+#include "Program.h"
 
 typedef struct _FILE_READER_CONTEXT
 {
-	FILE * File;
-	wchar_t TweetBuffer[MAX_TWEET_CHARACTER_COUNT];
+	FILE * File;	
+	void * EndOfBlock;
+	PWSTRING WritePointer;
 	
 } FILE_READER_CONTEXT, * PFILE_READER_CONTEXT;
 

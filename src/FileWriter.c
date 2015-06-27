@@ -9,6 +9,8 @@
 
 #include "ErrorCodes.h"
 
+#include <sys/mman.h>
+
 #include "Tweet.h"
 #include "Node.h"
 #include "Program.h"
@@ -21,6 +23,16 @@ int WriteOutResults(PPROGRAM_CONTEXT ProgramContext)
 	FILE_WRITER_CONTEXT FileWriterContext;
 	int Result = NO_ERROR;
 	
+#ifndef WRITE_DEBUG_INFO_TO_FILE
+	//Free the UnicodeAppearances
+	if(ProgramContext->UnicodeAppearances != NULL)
+	{
+		free(ProgramContext->UnicodeAppearances);
+		ProgramContext->UnicodeAppearancesSize = 0;
+		ProgramContext->UnicodeAppearances = NULL;
+	}
+#endif
+	
 	//Open File
 	Result = OpenOutputFile(ProgramContext, &FileWriterContext);
 	if(Result != NO_ERROR)
@@ -28,8 +40,12 @@ int WriteOutResults(PPROGRAM_CONTEXT ProgramContext)
 		return Result;
 	}	
 	
+	mlock(ProgramContext->TweetStrings, ProgramContext->TweetStringsSize);
+	
 	//Write all Elements
 	WriteTweetsToFile(ProgramContext, &FileWriterContext);
+	
+	munlock(ProgramContext->TweetStrings, ProgramContext->TweetStringsSize);
 	
 	//close file
 	fclose(FileWriterContext.OutputFile);
@@ -66,9 +82,9 @@ void WriteTweetsToFile(PPROGRAM_CONTEXT ProgramContext, PFILE_WRITER_CONTEXT Fil
 	for(PTWEET Tweet = ProgramContext->NodeContext.Data; Tweet != ProgramContext->NodeContext.Data + ProgramContext->NodeContext.ElementsPerNode; Tweet++)
 	{		
 #ifdef WRITE_DEBUG_INFO_TO_FILE
-		PrintTweetDebugInfoToStream(FileWriterContext->OutputFile, Tweet);
+		PrintTweetDebugInfoToStream(FileWriterContext->OutputFile, ProgramContext, Tweet);
 #endif	
-		fputws(ProgramContext->Tweets[Tweet->TweetStringID], FileWriterContext->OutputFile);
+		fputws(ProgramContext->TweetStrings + Tweet->TweetStringOffset, FileWriterContext->OutputFile);
 		fputwc(L'\n', FileWriterContext->OutputFile);
 	}	
 }

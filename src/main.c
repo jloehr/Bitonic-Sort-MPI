@@ -1,3 +1,4 @@
+#include <sys/mman.h>
 #include <mpi.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -60,12 +61,14 @@ int main(int argc, char * argv[])
     	return Status;
     }
     
-    PrintMemoryConsumption(&ProgramContext.NodeContext.BenchmarkContext);
+    PrintMemoryConsumption(&ProgramContext, &ProgramContext.NodeContext.BenchmarkContext);
     
     DoneInitializing(&ProgramContext.NodeContext.BenchmarkContext);
     
+	mlock(ProgramContext.NodeContext.Data, ProgramContext.NodeContext.ElementsPerNode * sizeof(TWEET));
+    
     //Start Bitonic Sort
-    Sort(&ProgramContext.NodeContext);
+    Sort(&ProgramContext, &ProgramContext.NodeContext);
     
     DoneSorting(&ProgramContext.NodeContext.BenchmarkContext);
     
@@ -75,6 +78,8 @@ int main(int argc, char * argv[])
     {
     	return Status;
     }
+    
+	munlock(ProgramContext.NodeContext.Data, ProgramContext.NodeContext.ElementsPerNode * sizeof(TWEET));
     
     DoneWriting(&ProgramContext.NodeContext.BenchmarkContext);
     PrintTimes(&ProgramContext.NodeContext.BenchmarkContext);
