@@ -85,7 +85,7 @@ void BitonicMerge(PPROGRAM_CONTEXT ProgramContext, uint32_t NodesToMerge)
     
     if(NodesToMerge != 1)
     {
-        //BitonicCompare(NodesToMerge, ASC/DESC)
+        BitonicCompare(ProgramContext, NodesToMerge, Descending);
         BitonicMerge(ProgramContext, NodesToMerge/2);
     }
     else
@@ -102,8 +102,24 @@ void BitonicCompare(PPROGRAM_CONTEXT ProgramContext, uint32_t NodesToMerge, bool
     PartnerNodeID += LeftNode ? (NodesToMerge/2) : -(NodesToMerge/2);
     
     // Exchange Data
+    ExchangeTweetData(ProgramContext, PartnerNodeID, LeftNode);
     
     // Compare
+    PTWEET FirstHalf = LeftNode ? ProgramContext->NodeContext.Data : ProgramContext->NodeContext.DataBuffer;
+    PTWEET SecondHalf = LeftNode ? ProgramContext->NodeContext.DataBuffer : ProgramContext->NodeContext.Data + (ProgramContext->NodeContext.ElementsPerNode / 2);
+    
+    for(uint64_t i = 0; i < (ProgramContext->NodeContext.ElementsPerNode / 2); i++, FirstHalf++, SecondHalf++)
+    {
+        int CompareResult = CompareTweetsDesc(FirstHalf, SecondHalf, ProgramContext);
+        
+        if((Descending && (CompareResult > 0)) || (!Descending && (CompareResult < 0)))
+        {
+            TWEET Temp = (*FirstHalf);
+            (*FirstHalf) = (*SecondHalf);
+            (*SecondHalf) = Temp;
+        }
+    }
     
     // Exhcange Data
+    ExchangeTweetDataBack(ProgramContext, PartnerNodeID, LeftNode);
 }
