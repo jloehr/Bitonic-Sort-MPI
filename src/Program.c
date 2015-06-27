@@ -3,7 +3,9 @@
 #include <unistd.h>
 #include <stdlib.h>
 
+#include "ErrorCodes.h"
 #include "ArgumentParsing.h"
+#include "Tweet.h"
 
 int InitProgramContext(PPROGRAM_CONTEXT ProgramContext, int argc, char * argv[])
 {
@@ -31,6 +33,12 @@ int InitProgramContext(PPROGRAM_CONTEXT ProgramContext, int argc, char * argv[])
 	if(ProgramContext->PageSize == 0)
 	{
 		ProgramContext->PageSize = 4*1024;
+	}
+	
+	Result = InitMPITweetType(ProgramContext);
+	if(Result != NO_ERROR)
+	{
+		return Result;
 	}
 	
 	return Result;

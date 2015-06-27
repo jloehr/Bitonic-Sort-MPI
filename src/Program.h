@@ -2,6 +2,7 @@
 
 #include "Int.h"
 #include <wchar.h>
+#include <mpi.h>
 
 #include "ForwardDeclarations.h"
 
@@ -18,6 +19,8 @@ typedef struct _PROGRAM_CONTEXT
 	const wchar_t * SearchTerm;
 	
 	uint64_t PageSize;
+	
+	MPI_Datatype MPITweetType;
 	
 	uint64_t TweetStringsSize;
 	PWSTRING TweetStrings;

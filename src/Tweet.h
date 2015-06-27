@@ -26,6 +26,8 @@ typedef struct _TWEET {
 	
 } TWEET, * PTWEET;
 
+int InitMPITweetType(PPROGRAM_CONTEXT ProgramContext);
+
 void PrintTweet(PPROGRAM_CONTEXT ProgramContext, PTWEET Tweet);
 void PrintTweetDebugInfoToStream(FILE * Stream, PPROGRAM_CONTEXT ProgramContext, PTWEET Tweet);
 

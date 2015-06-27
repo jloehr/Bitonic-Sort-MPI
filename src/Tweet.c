@@ -3,8 +3,34 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <wchar.h>
+#include <mpi.h>
+#include <stddef.h>
 
 #include "Program.h"
+#include "ErrorCodes.h"
+
+int InitMPITweetType(PPROGRAM_CONTEXT ProgramContext)
+{
+	int Result = NO_ERROR;
+	
+	int BlockLength[3] = {2, 1, 2};
+	MPI_Datatype MPITypes[3] = { MPI_UINT8_T, MPI_UINT16_T, MPI_UINT64_T };
+	MPI_Aint Offsets[3] = {offsetof(TWEET, SearchTermValue), offsetof(TWEET, NumberOfDifferentUnicodes), offsetof(TWEET, UnicodeAppearanceOffset)};
+	
+	Result = MPI_Type_create_struct(3, BlockLength, Offsets, MPITypes, &(ProgramContext->MPITweetType));
+	if(Result != MPI_SUCCESS)
+	{
+		return ERROR_MPI_TWEET_DATATYPE;	
+	}
+	
+	Result = MPI_Type_commit(&(ProgramContext->MPITweetType));
+	if(Result != MPI_SUCCESS)
+	{
+		return ERROR_MPI_TWEET_DATATYPE;	
+	}	
+	
+	return NO_ERROR;
+}
 
 void PrintTweet(PPROGRAM_CONTEXT ProgramContext, PTWEET Tweet)
 {
