@@ -16,6 +16,8 @@ typedef struct _NODE_CONTEXT
 	BENCHMARK_CONTEXT BenchmarkContext;
 	
 	PTWEET Data;
+	PTWEET DataBuffer;
+	uint64_t DataBufferSize;
 	
 } NODE_CONTEXT, * PNODE_CONTEXT;
 
