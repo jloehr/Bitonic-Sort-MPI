@@ -8,6 +8,9 @@
 #include "Node.h"
 
 void QSort(PPROGRAM_CONTEXT ProgramContext);
+void BitonicSort(PPROGRAM_CONTEXT ProgramContext);
+void BitonicMerge(PPROGRAM_CONTEXT ProgramContext, uint32_t NodesToMerge);
+void BitonicCompare(PPROGRAM_CONTEXT ProgramContext, uint32_t NodesToMerge, bool Descending);
 
 PPROGRAM_CONTEXT QsortProgramContext = NULL;
 
@@ -19,6 +22,7 @@ void Sort(PPROGRAM_CONTEXT ProgramContext)
      QSort(ProgramContext);
      
     //Start Bitonic Sort
+    BitonicSort(ProgramContext);
     
     munlock(ProgramContext->UnicodeAppearances, ProgramContext->UnicodeAppearancesSize);
     
@@ -28,33 +32,47 @@ void QSort(PPROGRAM_CONTEXT ProgramContext)
 {
     QsortProgramContext = ProgramContext;
     
-    bool Ascending = ((ProgramContext->NodeContext.NodeID % 2) == 1);
+    bool Descending = ((ProgramContext->NodeContext.NodeID % 2) == 0);
     
     //Sort Node local via qsort
-	qsort(ProgramContext->NodeContext.Data, ProgramContext->NodeContext.ElementsPerNode, sizeof(TWEET), Ascending ? CompareTweetsAscQsort : CompareTweetsDescQsort);
+	qsort(ProgramContext->NodeContext.Data, ProgramContext->NodeContext.ElementsPerNode, sizeof(TWEET), Descending ? CompareTweetsDescQsort : CompareTweetsAscQsort);
   
     QsortProgramContext = NULL;
 }
-/*
-void BitonicSort()
+
+void BitonicSort(PPROGRAM_CONTEXT ProgramContext)
 {
-    // MaxMerges = log2(NumberOfNodes)
-    // for ( i = MaxMerges; - 1; i > 0; i--)
-    // {
-    //      BitonicMegre(2^(MaxMerges - i));
-    // }
+    for(uint32_t NodesToMerge = 2; NodesToMerge <= ProgramContext->NodeContext.NumberOfNodes; NodesToMerge *=2)
+    {
+        BitonicMerge(ProgramContext, NodesToMerge);
+    }
 }
 
-void BitonicMerge(uint32_t NodesToMerge)
+void BitonicMerge(PPROGRAM_CONTEXT ProgramContext, uint32_t NodesToMerge)
 {
-    //if(NodesToMerge != 1)
+    bool Descending = (((ProgramContext->NodeContext.NodeID / NodesToMerge) % 2) == 0);
+    
+    if(NodesToMerge != 1)
     {
-    //BitonicCompare(NodesToMerge)
-    //BitonicMerge(NodesToMerge/2)
+        //BitonicCompare(NodesToMerge, ASC/DESC)
+        BitonicMerge(ProgramContext, NodesToMerge/2);
     }
-    //else
-    //{
-    //  MergeSort   
-    //}
+    else
+    {
+        //MergeSort(ASC/DESC);
+    }
 }
-*/
+
+void BitonicCompare(PPROGRAM_CONTEXT ProgramContext, uint32_t NodesToMerge, bool Descending)
+{
+    // Get Partner NodeID
+    bool LeftNode = (ProgramContext->NodeContext.NodeID % NodesToMerge) < (NodesToMerge/2);
+    int PartnerNodeID = ProgramContext->NodeContext.NodeID;
+    PartnerNodeID += LeftNode ? (NodesToMerge/2) : -(NodesToMerge/2);
+    
+    // Exchange Data
+    
+    // Compare
+    
+    // Exhcange Data
+}
