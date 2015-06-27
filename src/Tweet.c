@@ -23,9 +23,24 @@ void PrintTweetDebugInfoToStream(FILE * Stream, PPROGRAM_CONTEXT ProgramContext,
 }
 
 extern PPROGRAM_CONTEXT QsortProgramContext;
-int CompareTweets(const void * a, const void * b)
+
+int CompareTweetsAscQsort(const void * a, const void * b)
+{
+	return CompareTweetsAsc(a, b, QsortProgramContext);
+}
+
+int CompareTweetsDescQsort(const void * a, const void * b)
+{
+	return CompareTweetsDesc(a, b, QsortProgramContext);
+}
+
+int CompareTweetsAsc(const void * a, const void * b, PPROGRAM_CONTEXT ProgramContext)
+{
+	return CompareTweetsDesc(b, a, ProgramContext);
+}
+
+int CompareTweetsDesc(const void * a, const void * b, PPROGRAM_CONTEXT ProgramContext)
 {	
-	PPROGRAM_CONTEXT ProgramContext = QsortProgramContext;
 	const TWEET * A = a;
 	const TWEET * B = b;
 	

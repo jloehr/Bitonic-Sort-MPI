@@ -68,7 +68,7 @@ int main(int argc, char * argv[])
 	mlock(ProgramContext.NodeContext.Data, ProgramContext.NodeContext.ElementsPerNode * sizeof(TWEET));
     
     //Start Bitonic Sort
-    Sort(&ProgramContext, &ProgramContext.NodeContext);
+    Sort(&ProgramContext);
     
     DoneSorting(&ProgramContext.NodeContext.BenchmarkContext);
     

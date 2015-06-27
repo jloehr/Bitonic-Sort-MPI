@@ -29,4 +29,8 @@ typedef struct _TWEET {
 void PrintTweet(PPROGRAM_CONTEXT ProgramContext, PTWEET Tweet);
 void PrintTweetDebugInfoToStream(FILE * Stream, PPROGRAM_CONTEXT ProgramContext, PTWEET Tweet);
 
-int CompareTweets(const void * a, const void * b);
+int CompareTweetsDescQsort(const void * a, const void * b);
+int CompareTweetsAscQsort(const void * a, const void * b);
+
+int CompareTweetsDesc(const void * a, const void * b, PPROGRAM_CONTEXT ProgramContext);
+int CompareTweetsAsc(const void * a, const void * b, PPROGRAM_CONTEXT ProgramContext);
