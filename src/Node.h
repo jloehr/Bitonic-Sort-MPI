@@ -17,7 +17,6 @@ typedef struct _NODE_CONTEXT
 	
 	PTWEET Data;
 	PTWEET DataBuffer;
-	uint64_t DataBufferSize;
 	
 } NODE_CONTEXT, * PNODE_CONTEXT;
 

@@ -15,7 +15,6 @@ void InitNodeContext(PNODE_CONTEXT NodeContext)
   NodeContext->ElementsPerNode = 0;
   NodeContext->Data = NULL;
   NodeContext->DataBuffer = NULL;
-  NodeContext->DataBufferSize = 0;
 }
 
 void FinalizeNodeContext(PNODE_CONTEXT NodeContext)
