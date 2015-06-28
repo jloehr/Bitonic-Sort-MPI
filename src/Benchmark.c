@@ -14,12 +14,12 @@ void InitBenchmark(PBENCHMARK_CONTEXT BenchmarkContext)
 void PrintMemoryConsumption(PPROGRAM_CONTEXT ProgramContext, PBENCHMARK_CONTEXT BenchmarkContext)
 {
 	uint64_t Total = ProgramContext->TweetStringsSize;
-	Total += BenchmarkContext->TweetDataMemory;
+	Total += 2*BenchmarkContext->TweetDataMemory;
 	Total += ProgramContext->UnicodeAppearancesSize;
 	
 	wprintf(L"\n");
 	wprintf(L"Tweet String Memory:\t%12"PRIu64"\n", ProgramContext->TweetStringsSize);
-	wprintf(L"Tweet Data Memory:\t%12"PRIu64"\n", BenchmarkContext->TweetDataMemory);
+	wprintf(L"Tweet Data Memory:\t%12"PRIu64"\n", 2*BenchmarkContext->TweetDataMemory);
 	wprintf(L"Unicode Appearance Memory:%10"PRIu64"\n", ProgramContext->UnicodeAppearancesSize);
 	wprintf(L"Unicode Appearance Fields:%10"PRIu64"\n", ProgramContext->UnicodeAppearancesSize / sizeof(UNICODE_APPEARANCE));
 	wprintf(L"------------------------------------\n");
