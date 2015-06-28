@@ -9,6 +9,7 @@
 void InitBenchmark(PBENCHMARK_CONTEXT BenchmarkContext)
 {
 	BenchmarkContext->TweetDataMemory = 0;
+	BenchmarkContext->NetworkingTime = 0;
 }
 
 void PrintMemoryConsumption(PPROGRAM_CONTEXT ProgramContext, PBENCHMARK_CONTEXT BenchmarkContext)
@@ -42,6 +43,18 @@ void DoneInitializing(PBENCHMARK_CONTEXT BenchmarkContext)
 	BenchmarkContext->DoneInitializing = clock();
 }
 
+void StartNetworking(PBENCHMARK_CONTEXT BenchmarkContext)
+{
+	BenchmarkContext->NetworkingStart = clock();
+}
+
+void StopNetworking(PBENCHMARK_CONTEXT BenchmarkContext)
+{
+	clock_t NetworkingEnd = clock();
+	
+	BenchmarkContext->NetworkingTime += NetworkingEnd - BenchmarkContext->NetworkingStart;
+}
+
 void DoneSorting(PBENCHMARK_CONTEXT BenchmarkContext)
 {
 	BenchmarkContext->DoneSorting = clock();
@@ -56,6 +69,7 @@ void PrintTimes(PBENCHMARK_CONTEXT BenchmarkContext)
 {
 	double ReadingTime = (double)(BenchmarkContext->DoneReading - BenchmarkContext->Start)/CLOCKS_PER_SEC;
 	double InitializingTime = (double)(BenchmarkContext->DoneInitializing - BenchmarkContext->DoneReading)/CLOCKS_PER_SEC;
+	double NetworkingTime = (double)BenchmarkContext->NetworkingTime/CLOCKS_PER_SEC;
 	double SortingTime = (double)(BenchmarkContext->DoneSorting - BenchmarkContext->DoneInitializing)/CLOCKS_PER_SEC;
 	double WritingTime = (double)(BenchmarkContext->DoneWriting - BenchmarkContext->DoneSorting)/CLOCKS_PER_SEC;
 	double TotalTime = (double)(BenchmarkContext->DoneWriting - BenchmarkContext->Start)/CLOCKS_PER_SEC;
@@ -63,6 +77,8 @@ void PrintTimes(PBENCHMARK_CONTEXT BenchmarkContext)
 	wprintf(L"Reading:\t%#10.5fs\n", ReadingTime);
 	wprintf(L"Initializing:\t%#10.5fs\n", InitializingTime);
 	wprintf(L"Sorting:\t%#10.5fs\n", SortingTime);
+	wprintf(L"- Networking:\t%#10.5fs\n", NetworkingTime);
+	wprintf(L"- Bare Sorting:\t%#10.5fs\n", SortingTime - NetworkingTime);
 	wprintf(L"Writing:\t%#10.5fs\n", WritingTime);
 	wprintf(L"Total:\t\t%#10.5fs\n", TotalTime);
 }

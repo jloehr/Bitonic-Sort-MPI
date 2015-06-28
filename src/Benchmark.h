@@ -9,12 +9,14 @@ typedef struct _BENCHMARK_CONTEXT
 {
 	//Memory
 	uint64_t TweetDataMemory;
-	
+
 	//Times
 	clock_t Start;
 	clock_t DoneReading;
 	clock_t DoneInitializing;
 	clock_t DoneSorting;
+	clock_t NetworkingTime;
+	clock_t NetworkingStart;
 	clock_t DoneWriting;
 	
 } BENCHMARK_CONTEXT, * PBENCHMARK_CONTEXT;
@@ -24,6 +26,8 @@ void PrintMemoryConsumption(PPROGRAM_CONTEXT ProgramContext, PBENCHMARK_CONTEXT 
 void StartBenchmark(PBENCHMARK_CONTEXT BenchmarkContext);
 void DoneReading(PBENCHMARK_CONTEXT BenchmarkContext);
 void DoneInitializing(PBENCHMARK_CONTEXT BenchmarkContext);
+void StartNetworking(PBENCHMARK_CONTEXT BenchmarkContext);
+void StopNetworking(PBENCHMARK_CONTEXT BenchmarkContext);
 void DoneSorting(PBENCHMARK_CONTEXT BenchmarkContext);
 void DoneWriting(PBENCHMARK_CONTEXT BenchmarkContext);
 void PrintTimes(PBENCHMARK_CONTEXT BenchmarkContext);

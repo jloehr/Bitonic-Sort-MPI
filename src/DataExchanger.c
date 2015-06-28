@@ -10,6 +10,8 @@ int ExchangeTweetData(PPROGRAM_CONTEXT ProgramContext, int PartnerNodeID, bool L
 {
 	uint64_t HalfTweetsPerNode = ProgramContext->NodeContext.ElementsPerNode/2;
 	
+	StartNetworking(&ProgramContext->NodeContext.BenchmarkContext);
+	
 	if(LeftNode)
 	{
 		//Send
@@ -27,12 +29,16 @@ int ExchangeTweetData(PPROGRAM_CONTEXT ProgramContext, int PartnerNodeID, bool L
 		MPI_Send(ProgramContext->NodeContext.Data, HalfTweetsPerNode, ProgramContext->MPITweetType, PartnerNodeID, 0, MPI_COMM_WORLD);	
 	}
 	
+	StopNetworking(&ProgramContext->NodeContext.BenchmarkContext);
+	
 	return NO_ERROR;
 }
 
 int ExchangeTweetDataBack(PPROGRAM_CONTEXT ProgramContext, int PartnerNodeID, bool LeftNode)
 {
 	uint64_t HalfTweetsPerNode = ProgramContext->NodeContext.ElementsPerNode/2;
+	
+	StartNetworking(&ProgramContext->NodeContext.BenchmarkContext);
 	
 	if(LeftNode)
 	{
@@ -50,6 +56,8 @@ int ExchangeTweetDataBack(PPROGRAM_CONTEXT ProgramContext, int PartnerNodeID, bo
 		//Send
 		MPI_Send(ProgramContext->NodeContext.DataBuffer, HalfTweetsPerNode, ProgramContext->MPITweetType, PartnerNodeID, 0, MPI_COMM_WORLD);	
 	}
+	
+	StopNetworking(&ProgramContext->NodeContext.BenchmarkContext);
 	
 	return NO_ERROR;
 	
