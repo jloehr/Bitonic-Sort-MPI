@@ -42,10 +42,12 @@ void PrintTweetDebugInfoToStream(FILE * Stream, PPROGRAM_CONTEXT ProgramContext,
 {
 	fwprintf(Stream, L"%3u\t%2u\t", Tweet->Size, Tweet->SearchTermValue);
 	
+	/*
 	for(PUNICODE_APPEARANCE UnicodeAppearance = ProgramContext->UnicodeAppearances + Tweet->UnicodeAppearanceOffset; UnicodeAppearance != (ProgramContext->UnicodeAppearances + Tweet->UnicodeAppearanceOffset + Tweet->NumberOfDifferentUnicodes); UnicodeAppearance++)
 	{
 		fwprintf(Stream, L"%4x: %3u\t", UnicodeAppearance->UnicodeCharacter, UnicodeAppearance->NumberOfAppearance);
 	}
+	*/
 }
 
 extern PPROGRAM_CONTEXT QsortProgramContext;
@@ -76,6 +78,9 @@ int CompareTweetsDesc(const void * a, const void * b, PPROGRAM_CONTEXT ProgramCo
 	}
 	else
 	{
+		/*
+		//Calculate Unicode Appearance
+		
 		uint8_t MinIndex = A->NumberOfDifferentUnicodes < B->NumberOfDifferentUnicodes ? A->NumberOfDifferentUnicodes : B->NumberOfDifferentUnicodes;	
 		
 		PUNICODE_APPEARANCE UnicodeAppearanceA, UnicodeAppearanceB;
@@ -96,5 +101,7 @@ int CompareTweetsDesc(const void * a, const void * b, PPROGRAM_CONTEXT ProgramCo
 		}
 		
 		return 	B->NumberOfDifferentUnicodes - A->NumberOfDifferentUnicodes;
+		*/
+		return 0;
 	}
 }

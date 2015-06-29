@@ -21,7 +21,6 @@ PPROGRAM_CONTEXT QsortProgramContext = NULL;
 
 void Sort(PPROGRAM_CONTEXT ProgramContext)
 {
-     mlock(ProgramContext->UnicodeAppearances, ProgramContext->UnicodeAppearancesSize);
      AllocateAndLockMemory(&ProgramContext->NodeContext);
 	
      QSort(ProgramContext);
@@ -30,7 +29,6 @@ void Sort(PPROGRAM_CONTEXT ProgramContext)
     BitonicSort(ProgramContext);
     
     UnlockAndFreeMemory(&ProgramContext->NodeContext);
-    munlock(ProgramContext->UnicodeAppearances, ProgramContext->UnicodeAppearancesSize);   
 }
 
 void QSort(PPROGRAM_CONTEXT ProgramContext)
