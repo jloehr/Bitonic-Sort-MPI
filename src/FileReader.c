@@ -144,7 +144,7 @@ int ReadInLine(PPROGRAM_CONTEXT ProgramContext, PFILE_READER_CONTEXT FileReaderC
 				return Result;
 			}
 			
-			return NO_ERROR;
+			break;
 		}
 		else
 		{
