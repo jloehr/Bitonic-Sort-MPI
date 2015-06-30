@@ -5,19 +5,23 @@
 #include <wchar.h>
 #include <mpi.h>
 #include <stddef.h>
+#include <string.h>
 
 #include "Program.h"
 #include "ErrorCodes.h"
+
+uint16_t ParseTweetForUnicodeAppearance(PPROGRAM_CONTEXT ProgramContext, PUNICODE_APPEARANCE UnicodeAppearancePointer, const TWEET * Tweet);
+void AddCharacterToUnicodeAppearance(wint_t ReadChar, PUNICODE_APPEARANCE UnicodeAppearance, uint16_t * NumberOfDifferentUnicodes);
 
 int InitMPITweetType(PPROGRAM_CONTEXT ProgramContext)
 {
 	int Result = NO_ERROR;
 	
-	int BlockLength[3] = {2, 1, 2};
-	MPI_Datatype MPITypes[3] = { MPI_UINT8_T, MPI_UINT16_T, MPI_UINT64_T };
-	MPI_Aint Offsets[3] = {offsetof(TWEET, SearchTermValue), offsetof(TWEET, NumberOfDifferentUnicodes), offsetof(TWEET, UnicodeAppearanceOffset)};
+	int BlockLength[2] = {2, 1};
+	MPI_Datatype MPITypes[2] = { MPI_UINT8_T, MPI_UINT64_T };
+	MPI_Aint Offsets[2] = {offsetof(TWEET, SearchTermValue), offsetof(TWEET, TweetStringOffset)};
 	
-	Result = MPI_Type_create_struct(3, BlockLength, Offsets, MPITypes, &(ProgramContext->MPITweetType));
+	Result = MPI_Type_create_struct(2, BlockLength, Offsets, MPITypes, &(ProgramContext->MPITweetType));
 	if(Result != MPI_SUCCESS)
 	{
 		return ERROR_MPI_TWEET_DATATYPE;	
@@ -42,12 +46,13 @@ void PrintTweetDebugInfoToStream(FILE * Stream, PPROGRAM_CONTEXT ProgramContext,
 {
 	fwprintf(Stream, L"%3u\t%2u\t", Tweet->Size, Tweet->SearchTermValue);
 	
-	/*
-	for(PUNICODE_APPEARANCE UnicodeAppearance = ProgramContext->UnicodeAppearances + Tweet->UnicodeAppearanceOffset; UnicodeAppearance != (ProgramContext->UnicodeAppearances + Tweet->UnicodeAppearanceOffset + Tweet->NumberOfDifferentUnicodes); UnicodeAppearance++)
+	UNICODE_APPEARANCE UnicodeAppearanceBuffer[ProgramContext->MaxTweetSize];
+	uint16_t NumberOfDifferentUnicodes = ParseTweetForUnicodeAppearance(ProgramContext, UnicodeAppearanceBuffer, Tweet);
+	
+	for(PUNICODE_APPEARANCE UnicodeAppearance = UnicodeAppearanceBuffer; UnicodeAppearance != (UnicodeAppearanceBuffer + NumberOfDifferentUnicodes); UnicodeAppearance++)
 	{
 		fwprintf(Stream, L"%4x: %3u\t", UnicodeAppearance->UnicodeCharacter, UnicodeAppearance->NumberOfAppearance);
 	}
-	*/
 }
 
 extern PPROGRAM_CONTEXT QsortProgramContext;
@@ -78,16 +83,19 @@ int CompareTweetsDesc(const void * a, const void * b, PPROGRAM_CONTEXT ProgramCo
 	}
 	else
 	{
-		/*
 		//Calculate Unicode Appearance
+		PUNICODE_APPEARANCE UnicodeAppearanceA = ProgramContext->UnicodeAppearancesBuffer;
+		PUNICODE_APPEARANCE UnicodeAppearanceB = ProgramContext->UnicodeAppearancesBuffer + ProgramContext->MaxTweetSize;
 		
-		uint8_t MinIndex = A->NumberOfDifferentUnicodes < B->NumberOfDifferentUnicodes ? A->NumberOfDifferentUnicodes : B->NumberOfDifferentUnicodes;	
+		uint16_t NumberOfAppearanceA = ParseTweetForUnicodeAppearance(ProgramContext, UnicodeAppearanceA, A);
+		uint16_t NumberOfAppearanceB = ParseTweetForUnicodeAppearance(ProgramContext, UnicodeAppearanceB, B);
 		
-		PUNICODE_APPEARANCE UnicodeAppearanceA, UnicodeAppearanceB;
+		uint8_t MinIndex = NumberOfAppearanceA < NumberOfAppearanceB ? NumberOfAppearanceA : NumberOfAppearanceB;	
 		
-		for(UnicodeAppearanceA = ProgramContext->UnicodeAppearances + A->UnicodeAppearanceOffset,
-			UnicodeAppearanceB = ProgramContext->UnicodeAppearances + B->UnicodeAppearanceOffset; 
-			UnicodeAppearanceA != (ProgramContext->UnicodeAppearances + A->UnicodeAppearanceOffset + MinIndex);
+		PUNICODE_APPEARANCE End = UnicodeAppearanceA + MinIndex;
+		
+		for(; 
+			UnicodeAppearanceA != End;
 			UnicodeAppearanceA++, UnicodeAppearanceB++)
 		{
 			if(UnicodeAppearanceA->UnicodeCharacter != UnicodeAppearanceB->UnicodeCharacter)
@@ -100,8 +108,57 @@ int CompareTweetsDesc(const void * a, const void * b, PPROGRAM_CONTEXT ProgramCo
 			}
 		}
 		
-		return 	B->NumberOfDifferentUnicodes - A->NumberOfDifferentUnicodes;
-		*/
-		return 0;
+		return 	NumberOfAppearanceB - NumberOfAppearanceA;
 	}
+}
+
+uint16_t ParseTweetForUnicodeAppearance(PPROGRAM_CONTEXT ProgramContext, PUNICODE_APPEARANCE UnicodeAppearancePointer, const TWEET * Tweet)
+{
+	uint16_t NumberOfDifferentUnicodes = 0;
+	PWSTRING ReadPointer = ProgramContext->TweetStrings + Tweet->TweetStringOffset;
+	
+	for(wchar_t CurrentCharachter = (*ReadPointer);
+		CurrentCharachter != '\0'; 
+		CurrentCharachter = (*++ReadPointer))
+	{
+		//Unicode Appearance
+		AddCharacterToUnicodeAppearance(CurrentCharachter, UnicodeAppearancePointer, &NumberOfDifferentUnicodes);	
+	}
+	
+	return NumberOfDifferentUnicodes;
+}
+
+void AddCharacterToUnicodeAppearance(wint_t ReadChar, PUNICODE_APPEARANCE UnicodeAppearance, uint16_t * NumberOfDifferentUnicodes)
+{
+	PUNICODE_APPEARANCE End = UnicodeAppearance + (*NumberOfDifferentUnicodes);
+
+	for(uint16_t i = 0; 
+		UnicodeAppearance < End; 
+		UnicodeAppearance++, i++) 
+	{	
+		//If the exact Unicode is already in the List, increase its Appearance Number
+		if(UnicodeAppearance->UnicodeCharacter == ReadChar)
+		{
+			UnicodeAppearance->NumberOfAppearance++;
+			return;
+		}	
+		
+		//Insert a new entry into the List, when the new Character is smaller than another
+		if(UnicodeAppearance->UnicodeCharacter > ReadChar)
+		{
+			memmove(UnicodeAppearance + 1, UnicodeAppearance, ((*NumberOfDifferentUnicodes) - i) * sizeof(UNICODE_APPEARANCE));
+			
+			UnicodeAppearance->UnicodeCharacter = ReadChar;
+			UnicodeAppearance->NumberOfAppearance = 1;
+			(*NumberOfDifferentUnicodes)++;
+			return;
+		}
+	}
+
+	//If no entry was found and it is the biggest Unicode so far, append it
+	UnicodeAppearance->UnicodeCharacter = ReadChar;
+	UnicodeAppearance->NumberOfAppearance = 1;
+	(*NumberOfDifferentUnicodes)++;
+	
+	return;
 }
