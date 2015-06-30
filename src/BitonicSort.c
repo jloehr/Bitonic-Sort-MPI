@@ -10,8 +10,8 @@
 #include "DataExchanger.h"
 
 void QSort(PPROGRAM_CONTEXT ProgramContext);
-int AllocateAndLockMemory(PNODE_CONTEXT NodeContext);
-int UnlockAndFreeMemory(PNODE_CONTEXT NodeContext);
+int AllocateAndLockMemory(PPROGRAM_CONTEXT ProgramContext);
+int UnlockAndFreeMemory(PPROGRAM_CONTEXT ProgramContext);
 void BitonicSort(PPROGRAM_CONTEXT ProgramContext);
 void BitonicMerge(PPROGRAM_CONTEXT ProgramContext, uint32_t NodesToMerge, bool Descending);
 void BitonicCompare(PPROGRAM_CONTEXT ProgramContext, uint32_t NodesToMerge, bool Descending);
@@ -21,16 +21,14 @@ PPROGRAM_CONTEXT QsortProgramContext = NULL;
 
 void Sort(PPROGRAM_CONTEXT ProgramContext)
 {
-     mlock(ProgramContext->UnicodeAppearances, ProgramContext->UnicodeAppearancesSize);
-     AllocateAndLockMemory(&ProgramContext->NodeContext);
+    AllocateAndLockMemory(ProgramContext);
 	
-     QSort(ProgramContext);
+    QSort(ProgramContext);
      
     //Start Bitonic Sort
     BitonicSort(ProgramContext);
     
-    UnlockAndFreeMemory(&ProgramContext->NodeContext);
-    munlock(ProgramContext->UnicodeAppearances, ProgramContext->UnicodeAppearancesSize);   
+    UnlockAndFreeMemory(ProgramContext);
 }
 
 void QSort(PPROGRAM_CONTEXT ProgramContext)
@@ -45,29 +43,42 @@ void QSort(PPROGRAM_CONTEXT ProgramContext)
     QsortProgramContext = NULL;
 }
 
-int AllocateAndLockMemory(PNODE_CONTEXT NodeContext)
+int AllocateAndLockMemory(PPROGRAM_CONTEXT ProgramContext)
 {
-    uint64_t DataBufferSize = NodeContext->ElementsPerNode * sizeof(TWEET);
+    uint64_t DataBufferSize = ProgramContext->NodeContext.ElementsPerNode * sizeof(TWEET);
+    uint64_t UnicodeAppearanceBufferSize = 2 * ProgramContext->MaxTweetSize * sizeof(UNICODE_APPEARANCE);
     
-    NodeContext->DataBuffer = malloc(DataBufferSize);
-    if(NodeContext->DataBuffer == NULL)
+    ProgramContext->NodeContext.DataBuffer = malloc(DataBufferSize);
+    if(ProgramContext->NodeContext.DataBuffer == NULL)
     {
         return ERROR_OUT_OF_MEMORY;
     }
     
-    mlock(NodeContext->DataBuffer, DataBufferSize);
+    ProgramContext->UnicodeAppearancesBuffer = malloc(UnicodeAppearanceBufferSize);
+    if(ProgramContext->UnicodeAppearancesBuffer == NULL)
+    {
+        return ERROR_OUT_OF_MEMORY;
+    }
+    
+    mlock(ProgramContext->NodeContext.DataBuffer, DataBufferSize);
+    mlock(ProgramContext->UnicodeAppearancesBuffer, UnicodeAppearanceBufferSize);
     
     return NO_ERROR;
 }
 
-int UnlockAndFreeMemory(PNODE_CONTEXT NodeContext)
+int UnlockAndFreeMemory(PPROGRAM_CONTEXT ProgramContext)
 {
-    uint64_t DataBufferSize = NodeContext->ElementsPerNode * sizeof(TWEET);
+    uint64_t DataBufferSize = ProgramContext->NodeContext.ElementsPerNode * sizeof(TWEET);
+    uint64_t UnicodeAppearanceBufferSize = 2 * ProgramContext->MaxTweetSize * sizeof(UNICODE_APPEARANCE);
     
-    munlock(NodeContext->DataBuffer, DataBufferSize);
-    free(NodeContext->DataBuffer);
+    munlock(ProgramContext->NodeContext.DataBuffer, DataBufferSize);
+    munlock(ProgramContext->UnicodeAppearancesBuffer, UnicodeAppearanceBufferSize);
     
-    NodeContext->DataBuffer = NULL;
+    free(ProgramContext->NodeContext.DataBuffer);
+    free(ProgramContext->UnicodeAppearancesBuffer);
+    
+    ProgramContext->NodeContext.DataBuffer = NULL;
+    ProgramContext->UnicodeAppearancesBuffer = NULL;
     
     return NO_ERROR;
 }

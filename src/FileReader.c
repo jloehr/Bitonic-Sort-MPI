@@ -131,6 +131,7 @@ int ReadInLine(PPROGRAM_CONTEXT ProgramContext, PFILE_READER_CONTEXT FileReaderC
 {
 	int Result = NO_ERROR;
 	wint_t ReadCharacter;
+	uint16_t TweetSize = 0;
 	
 	//Read Tweet
 	while((ReadCharacter = fgetwc(FileReaderContext->File)) != WEOF)
@@ -143,7 +144,7 @@ int ReadInLine(PPROGRAM_CONTEXT ProgramContext, PFILE_READER_CONTEXT FileReaderC
 				return Result;
 			}
 			
-			return NO_ERROR;
+			break;
 		}
 		else
 		{
@@ -152,6 +153,8 @@ int ReadInLine(PPROGRAM_CONTEXT ProgramContext, PFILE_READER_CONTEXT FileReaderC
 			{
 				return Result;
 			}
+			
+			TweetSize++;
 		}
 	}
 	
@@ -162,6 +165,11 @@ int ReadInLine(PPROGRAM_CONTEXT ProgramContext, PFILE_READER_CONTEXT FileReaderC
 		{
 			return Result;
 		}
+	}
+	
+	if(ProgramContext->MaxTweetSize < TweetSize)
+	{
+		ProgramContext->MaxTweetSize = TweetSize;	
 	}
 	
 	return NO_ERROR;

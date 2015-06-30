@@ -23,16 +23,6 @@ int WriteOutResults(PPROGRAM_CONTEXT ProgramContext)
 	FILE_WRITER_CONTEXT FileWriterContext;
 	int Result = NO_ERROR;
 	
-#ifndef WRITE_DEBUG_INFO_TO_FILE
-	//Free the UnicodeAppearances
-	if(ProgramContext->UnicodeAppearances != NULL)
-	{
-		free(ProgramContext->UnicodeAppearances);
-		ProgramContext->UnicodeAppearancesSize = 0;
-		ProgramContext->UnicodeAppearances = NULL;
-	}
-#endif
-	
 	//Open File
 	Result = OpenOutputFile(ProgramContext, &FileWriterContext);
 	if(Result != NO_ERROR)

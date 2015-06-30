@@ -52,6 +52,12 @@ int main(int argc, char * argv[])
     	return Status;
     }
     
+    if(IsMasterNode(&(ProgramContext.NodeContext)))
+    {   
+        wprintf(L"Max Tweet Size:\t %d\n", ProgramContext.MaxTweetSize); 
+	    wprintf(L"\n");
+    }
+    
     DoneReading(&ProgramContext.NodeContext.BenchmarkContext);
     
     //Parse Tweets

@@ -16,6 +16,7 @@ typedef struct _PROGRAM_CONTEXT
 	uint64_t NumberOfFiles;
 	uint64_t TweetsPerFile;
 	uint64_t TotalAmountOfTweets;
+	uint16_t MaxTweetSize;
 	const wchar_t * SearchTerm;
 	
 	uint64_t PageSize;
@@ -24,8 +25,7 @@ typedef struct _PROGRAM_CONTEXT
 	
 	uint64_t TweetStringsSize;
 	PWSTRING TweetStrings;
-	uint64_t UnicodeAppearancesSize;
-	PUNICODE_APPEARANCE UnicodeAppearances;
+	PUNICODE_APPEARANCE UnicodeAppearancesBuffer;
 	NODE_CONTEXT NodeContext;
 	
 } PROGRAM_CONTEXT, * PPROGRAM_CONTEXT;

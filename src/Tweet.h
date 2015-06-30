@@ -19,8 +19,6 @@ typedef struct _TWEET {
 	
 	uint8_t SearchTermValue;
 	uint8_t Size;
-	uint16_t NumberOfDifferentUnicodes;
-	uint64_t UnicodeAppearanceOffset;
 
 	uint64_t TweetStringOffset;
 	
