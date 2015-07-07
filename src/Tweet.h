@@ -6,8 +6,6 @@
 
 #include "ForwardDeclarations.h"
 
-#define MAX_TWEET_CHARACTER_COUNT 512
-
 typedef struct _UNICODE_APPEARANCE
 {
 	wchar_t UnicodeCharacter;
@@ -15,10 +13,11 @@ typedef struct _UNICODE_APPEARANCE
 	
 } UNICODE_APPEARANCE, * PUNICODE_APPEARANCE;
 
-typedef struct _TWEET {
-	
+typedef struct _TWEET 
+{	
 	uint8_t SearchTermValue;
 	uint8_t Size;
+	UNICODE_APPEARANCE SmallestUnicode;
 
 	uint64_t TweetStringOffset;
 	

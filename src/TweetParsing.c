@@ -115,6 +115,8 @@ int ParseTweet(PPROGRAM_CONTEXT ProgramContext, PTWEET_PARSING_CONTEXT TweetPars
 {
 	int Result = NO_ERROR;
 	const wchar_t * SearchTermPointer = ProgramContext->SearchTerm;
+	wchar_t SmallestUnicode = WCHAR_MAX;
+	uint16_t SmallestUnicodeCount = 0;
 	
 	//Set TweetStringOffset
 	TweetParsingContext->CurrentTweet->TweetStringOffset = TweetParsingContext->ReadPointer - ProgramContext->TweetStrings;
@@ -141,9 +143,25 @@ int ParseTweet(PPROGRAM_CONTEXT ProgramContext, PTWEET_PARSING_CONTEXT TweetPars
 			}
 		}	
 		
+		//SmallestUnicode
+		if(CurrentCharachter < SmallestUnicode)
+		{
+			SmallestUnicode = CurrentCharachter;
+			SmallestUnicodeCount = 1;
+		}
+		else if(CurrentCharachter == SmallestUnicode)
+		{
+			SmallestUnicodeCount++;
+		}
+		
 		TweetParsingContext->CurrentTweet->Size++;
 	}
 	
+	//Copy Smallest Unicode
+	TweetParsingContext->CurrentTweet->SmallestUnicode.UnicodeCharacter = SmallestUnicode;
+	TweetParsingContext->CurrentTweet->SmallestUnicode.NumberOfAppearance = SmallestUnicodeCount;
+	
+	// Next Tweet Data
 	TweetParsingContext->CurrentTweet++;
 	
 	//Skip that null terminator

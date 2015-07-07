@@ -10,6 +10,7 @@
 #include "Program.h"
 #include "ErrorCodes.h"
 
+void GetNextBiggerUnicode(PPROGRAM_CONTEXT ProgramContext, PUNICODE_APPEARANCE UnicodeAppearancePointer, const TWEET * Tweet, wchar_t PreviousUnicode);
 uint16_t ParseTweetForUnicodeAppearance(PPROGRAM_CONTEXT ProgramContext, PUNICODE_APPEARANCE UnicodeAppearancePointer, const TWEET * Tweet);
 void AddCharacterToUnicodeAppearance(wint_t ReadChar, PUNICODE_APPEARANCE UnicodeAppearance, uint16_t * NumberOfDifferentUnicodes);
 
@@ -84,32 +85,55 @@ int CompareTweetsDesc(const void * a, const void * b, PPROGRAM_CONTEXT ProgramCo
 	else
 	{
 		//Calculate Unicode Appearance
-		PUNICODE_APPEARANCE UnicodeAppearanceA = ProgramContext->UnicodeAppearancesBuffer;
-		PUNICODE_APPEARANCE UnicodeAppearanceB = ProgramContext->UnicodeAppearancesBuffer + ProgramContext->MaxTweetSize;
+		UNICODE_APPEARANCE UnicodeAppearanceA = A->SmallestUnicode;
+		UNICODE_APPEARANCE UnicodeAppearanceB = B->SmallestUnicode;
 		
-		uint16_t NumberOfAppearanceA = ParseTweetForUnicodeAppearance(ProgramContext, UnicodeAppearanceA, A);
-		uint16_t NumberOfAppearanceB = ParseTweetForUnicodeAppearance(ProgramContext, UnicodeAppearanceB, B);
-		
-		uint8_t MinIndex = NumberOfAppearanceA < NumberOfAppearanceB ? NumberOfAppearanceA : NumberOfAppearanceB;	
-		
-		PUNICODE_APPEARANCE End = UnicodeAppearanceA + MinIndex;
-		
-		for(; 
-			UnicodeAppearanceA != End;
-			UnicodeAppearanceA++, UnicodeAppearanceB++)
+		while((UnicodeAppearanceA.UnicodeCharacter != WCHAR_MAX) && (UnicodeAppearanceB.UnicodeCharacter != WCHAR_MAX))
 		{
-			if(UnicodeAppearanceA->UnicodeCharacter != UnicodeAppearanceB->UnicodeCharacter)
+			if(UnicodeAppearanceA.UnicodeCharacter != UnicodeAppearanceB.UnicodeCharacter)
 			{
-				return UnicodeAppearanceA->UnicodeCharacter - UnicodeAppearanceB->UnicodeCharacter;
+				return UnicodeAppearanceA.UnicodeCharacter - UnicodeAppearanceB.UnicodeCharacter;
 			}
-			else if(UnicodeAppearanceA->NumberOfAppearance != UnicodeAppearanceB->NumberOfAppearance)
+			else if(UnicodeAppearanceA.NumberOfAppearance != UnicodeAppearanceB.NumberOfAppearance)
 			{
-				return UnicodeAppearanceB->NumberOfAppearance - UnicodeAppearanceA->NumberOfAppearance;
+				return UnicodeAppearanceB.NumberOfAppearance - UnicodeAppearanceA.NumberOfAppearance;
 			}
+			
+			GetNextBiggerUnicode(ProgramContext, &UnicodeAppearanceA, A, UnicodeAppearanceA.UnicodeCharacter);
+			GetNextBiggerUnicode(ProgramContext, &UnicodeAppearanceB, B, UnicodeAppearanceB.UnicodeCharacter);
 		}
 		
-		return 	NumberOfAppearanceB - NumberOfAppearanceA;
+		return UnicodeAppearanceA.UnicodeCharacter - UnicodeAppearanceB.UnicodeCharacter;	
 	}
+}
+
+void GetNextBiggerUnicode(PPROGRAM_CONTEXT ProgramContext, PUNICODE_APPEARANCE UnicodeAppearancePointer, const TWEET * Tweet, wchar_t PreviousUnicode)
+{
+	PWSTRING ReadPointer = ProgramContext->TweetStrings + Tweet->TweetStringOffset;
+	wchar_t UnicodeCharacter = WCHAR_MAX;
+	uint16_t NumberOfAppearance = 0;
+	
+	for(wchar_t CurrentCharachter = (*ReadPointer);
+		CurrentCharachter != '\0'; 
+		CurrentCharachter = (*++ReadPointer))
+	{
+		if(CurrentCharachter <= PreviousUnicode)
+		{
+			continue;
+		}
+		
+		if(CurrentCharachter < UnicodeCharacter)
+		{
+			UnicodeCharacter = CurrentCharachter;
+			NumberOfAppearance = 1;
+		} else if(CurrentCharachter == UnicodeCharacter)
+		{
+			NumberOfAppearance++;
+		}
+	}
+	
+	UnicodeAppearancePointer->UnicodeCharacter = UnicodeCharacter;
+	UnicodeAppearancePointer->NumberOfAppearance = NumberOfAppearance;
 }
 
 uint16_t ParseTweetForUnicodeAppearance(PPROGRAM_CONTEXT ProgramContext, PUNICODE_APPEARANCE UnicodeAppearancePointer, const TWEET * Tweet)
@@ -121,6 +145,11 @@ uint16_t ParseTweetForUnicodeAppearance(PPROGRAM_CONTEXT ProgramContext, PUNICOD
 		CurrentCharachter != '\0'; 
 		CurrentCharachter = (*++ReadPointer))
 	{
+		/*if(CurrentCharachter == Tweet->SmallestUnicode.UnicodeCharacter)
+		{
+			continue;
+		}
+		*/
 		//Unicode Appearance
 		AddCharacterToUnicodeAppearance(CurrentCharachter, UnicodeAppearancePointer, &NumberOfDifferentUnicodes);	
 	}
