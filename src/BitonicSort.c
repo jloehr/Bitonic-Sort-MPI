@@ -33,6 +33,7 @@ void Sort(PPROGRAM_CONTEXT ProgramContext)
 
 void QSort(PPROGRAM_CONTEXT ProgramContext)
 {
+    StartQsort(&ProgramContext->NodeContext.BenchmarkContext);
     QsortProgramContext = ProgramContext;
     
     bool Descending = ((ProgramContext->NodeContext.NodeID % 2) == 0);
@@ -41,6 +42,7 @@ void QSort(PPROGRAM_CONTEXT ProgramContext)
 	qsort(ProgramContext->NodeContext.Data, ProgramContext->NodeContext.ElementsPerNode, sizeof(TWEET), Descending ? CompareTweetsDescQsort : CompareTweetsAscQsort);
   
     QsortProgramContext = NULL;
+    StopQsort(&ProgramContext->NodeContext.BenchmarkContext);
 }
 
 int AllocateAndLockMemory(PPROGRAM_CONTEXT ProgramContext)
@@ -73,11 +75,17 @@ int UnlockAndFreeMemory(PPROGRAM_CONTEXT ProgramContext)
 
 void BitonicSort(PPROGRAM_CONTEXT ProgramContext)
 {
+    // Benchmark Start
+    StartBitonicCompare(&ProgramContext->NodeContext.BenchmarkContext);
+    
     for(uint32_t NodesToMerge = 2; NodesToMerge <= ProgramContext->NodeContext.NumberOfNodes; NodesToMerge *=2)
     {
         bool Descending = (((ProgramContext->NodeContext.NodeID / NodesToMerge) % 2) == 0);
         BitonicMerge(ProgramContext, NodesToMerge, Descending);
     }
+    
+    // Benchmark Stop
+    StopBitonicCompare(&ProgramContext->NodeContext.BenchmarkContext);
 }
 
 void BitonicMerge(PPROGRAM_CONTEXT ProgramContext, uint32_t NodesToMerge, bool Descending)
@@ -89,7 +97,9 @@ void BitonicMerge(PPROGRAM_CONTEXT ProgramContext, uint32_t NodesToMerge, bool D
     }
     else
     {
+        StartMergeSort(&ProgramContext->NodeContext.BenchmarkContext);
         MergeSort(ProgramContext, Descending);
+        StopMergeSort(&ProgramContext->NodeContext.BenchmarkContext);
     }
 }
 
