@@ -145,11 +145,6 @@ uint16_t ParseTweetForUnicodeAppearance(PPROGRAM_CONTEXT ProgramContext, PUNICOD
 		CurrentCharachter != '\0'; 
 		CurrentCharachter = (*++ReadPointer))
 	{
-		/*if(CurrentCharachter == Tweet->SmallestUnicode.UnicodeCharacter)
-		{
-			continue;
-		}
-		*/
 		//Unicode Appearance
 		AddCharacterToUnicodeAppearance(CurrentCharachter, UnicodeAppearancePointer, &NumberOfDifferentUnicodes);	
 	}
