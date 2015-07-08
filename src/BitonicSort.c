@@ -46,22 +46,14 @@ void QSort(PPROGRAM_CONTEXT ProgramContext)
 int AllocateAndLockMemory(PPROGRAM_CONTEXT ProgramContext)
 {
     uint64_t DataBufferSize = ProgramContext->NodeContext.ElementsPerNode * sizeof(TWEET);
-    uint64_t UnicodeAppearanceBufferSize = 2 * ProgramContext->MaxTweetSize * sizeof(UNICODE_APPEARANCE);
-    
+   
     ProgramContext->NodeContext.DataBuffer = malloc(DataBufferSize);
     if(ProgramContext->NodeContext.DataBuffer == NULL)
     {
         return ERROR_OUT_OF_MEMORY;
     }
     
-    ProgramContext->UnicodeAppearancesBuffer = malloc(UnicodeAppearanceBufferSize);
-    if(ProgramContext->UnicodeAppearancesBuffer == NULL)
-    {
-        return ERROR_OUT_OF_MEMORY;
-    }
-    
     mlock(ProgramContext->NodeContext.DataBuffer, DataBufferSize);
-    mlock(ProgramContext->UnicodeAppearancesBuffer, UnicodeAppearanceBufferSize);
     
     return NO_ERROR;
 }
@@ -69,17 +61,13 @@ int AllocateAndLockMemory(PPROGRAM_CONTEXT ProgramContext)
 int UnlockAndFreeMemory(PPROGRAM_CONTEXT ProgramContext)
 {
     uint64_t DataBufferSize = ProgramContext->NodeContext.ElementsPerNode * sizeof(TWEET);
-    uint64_t UnicodeAppearanceBufferSize = 2 * ProgramContext->MaxTweetSize * sizeof(UNICODE_APPEARANCE);
     
     munlock(ProgramContext->NodeContext.DataBuffer, DataBufferSize);
-    munlock(ProgramContext->UnicodeAppearancesBuffer, UnicodeAppearanceBufferSize);
     
     free(ProgramContext->NodeContext.DataBuffer);
-    free(ProgramContext->UnicodeAppearancesBuffer);
     
     ProgramContext->NodeContext.DataBuffer = NULL;
-    ProgramContext->UnicodeAppearancesBuffer = NULL;
-    
+   
     return NO_ERROR;
 }
 

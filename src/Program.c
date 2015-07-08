@@ -21,7 +21,6 @@ int InitProgramContext(PPROGRAM_CONTEXT ProgramContext, int argc, char * argv[])
 	ProgramContext->SearchTerm = NULL;
 	ProgramContext->TweetStringsSize = 0;
 	ProgramContext->TweetStrings = NULL;
-	ProgramContext->UnicodeAppearancesBuffer = NULL;
 	
 	Result = ParseArguments(argc, argv, ProgramContext);
 	
