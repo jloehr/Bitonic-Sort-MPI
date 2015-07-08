@@ -18,11 +18,11 @@ int InitMPITweetType(PPROGRAM_CONTEXT ProgramContext)
 {
 	int Result = NO_ERROR;
 	
-	int BlockLength[2] = {2, 1};
-	MPI_Datatype MPITypes[2] = { MPI_UINT8_T, MPI_UINT64_T };
-	MPI_Aint Offsets[2] = {offsetof(TWEET, SearchTermValue), offsetof(TWEET, TweetStringOffset)};
+	int BlockLength[4] = {2, 1, 1, 1};
+	MPI_Datatype MPITypes[4] = { MPI_UINT8_T, MPI_WCHAR, MPI_UINT16_T, MPI_UINT64_T };
+	MPI_Aint Offsets[4] = {offsetof(TWEET, SearchTermValue), offsetof(TWEET, SmallestUnicode) + offsetof(UNICODE_APPEARANCE, UnicodeCharacter), offsetof(TWEET, SmallestUnicode) + offsetof(UNICODE_APPEARANCE, NumberOfAppearance), offsetof(TWEET, TweetStringOffset)};
 	
-	Result = MPI_Type_create_struct(2, BlockLength, Offsets, MPITypes, &(ProgramContext->MPITweetType));
+	Result = MPI_Type_create_struct(4, BlockLength, Offsets, MPITypes, &(ProgramContext->MPITweetType));
 	if(Result != MPI_SUCCESS)
 	{
 		return ERROR_MPI_TWEET_DATATYPE;	
