@@ -2,6 +2,7 @@
 
 #include "Int.h"
 #include <stdbool.h>
+#include <mpi.h>
 
 #include "ForwardDeclarations.h"
 
@@ -12,6 +13,7 @@ typedef struct _NODE_CONTEXT
 	int NodeID;
 	int NumberOfNodes;
 	uint64_t ElementsPerNode;
+	MPI_Group WorldGroup;
 	
 	BENCHMARK_CONTEXT BenchmarkContext;
 	

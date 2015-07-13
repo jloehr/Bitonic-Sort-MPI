@@ -19,9 +19,13 @@ typedef struct _BENCHMARK_CONTEXT
 	
 	clock_t QSortTime;
 	clock_t QSortStart;
+
+	clock_t NetworkingOverheadTime;
+	clock_t NetworkingOverheadStart;
 	
 	clock_t NetworkingTime;
 	clock_t NetworkingStart;
+	uint32_t NetworkingExchangeCount;
 	
 	clock_t BitonicCompareTime;
 	clock_t BitonicCompareStart;
@@ -39,6 +43,8 @@ void DoneReading(PBENCHMARK_CONTEXT BenchmarkContext);
 void DoneInitializing(PBENCHMARK_CONTEXT BenchmarkContext);
 void StartQsort(PBENCHMARK_CONTEXT BenchmarkContext);
 void StopQsort(PBENCHMARK_CONTEXT BenchmarkContext);
+void StartNetworkingOverhead(PBENCHMARK_CONTEXT BenchmarkContext);
+void StopNetworkingOverhead(PBENCHMARK_CONTEXT BenchmarkContext);
 void StartNetworking(PBENCHMARK_CONTEXT BenchmarkContext);
 void StopNetworking(PBENCHMARK_CONTEXT BenchmarkContext);
 void StartBitonicCompare(PBENCHMARK_CONTEXT BenchmarkContext);
