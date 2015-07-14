@@ -3,9 +3,9 @@
 #PBS -l feature=mpp
 #PBS -l nodes=8:ppn=1
 
-TWEETSPERFILE=2097152
-NUMBEROFFILES=8
-SEARCHTERM="la"
+TWEETSPERFILE=$1 
+NUMBEROFFILES=$2
+SEARCHTERM=$3
 DATE=`date +%Y-%m-%d_%H-%M-%S`
 
 cd $PBS_O_WORKDIR
@@ -13,4 +13,4 @@ cd $PBS_O_WORKDIR
 #create output directory
 mkdir -p ./out/
 
-aprun -B ./bin/bitonic-mpi -t $TWEETSPERFILE -n $NUMBEROFFILES -f ./../${TWEETSPERFILE}tweets -o ./out/  $SEARCHTERM > ./out/log.$DATE
+aprun -B ./bin/bitonic-mpi -t $TWEETSPERFILE -n $NUMBEROFFILES -f ./../$TWEETSPERFILEtweets -o ./out/  $SEARCHTERM > ./out/log.$DATE
