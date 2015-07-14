@@ -15,7 +15,7 @@ int ParseArguments(int argc, char * argv[], PPROGRAM_CONTEXT ProgramContext)
 	char Argument;
 	opterr = 0;
 
-	while ((Argument = getopt (argc, argv, "f:n:t:")) != -1)
+	while ((Argument = getopt (argc, argv, "f:n:o:t:")) != -1)
 	{
 		switch(Argument)
 		{
@@ -24,6 +24,9 @@ int ParseArguments(int argc, char * argv[], PPROGRAM_CONTEXT ProgramContext)
 				break;
 			case 'n':
 				ProgramContext->NumberOfFiles = atoi(optarg);
+				break;
+			case 'o':
+				ProgramContext->OutputDir = optarg;
 				break;
 			case 't':
 				ProgramContext->TweetsPerFile = atoi(optarg);
@@ -68,6 +71,15 @@ int ParseArguments(int argc, char * argv[], PPROGRAM_CONTEXT ProgramContext)
 		if(IsMasterNode(&(ProgramContext->NodeContext)))
 		{
 			wprintf(L"Error no Filename provided!\n");	
+		}
+		return ERROR_NON_VALID_ARGUMENTS;
+	}
+	
+	if(ProgramContext->OutputDir == NULL)
+	{
+		if(IsMasterNode(&(ProgramContext->NodeContext)))
+		{
+			wprintf(L"Error no Output dir provided!\n");	
 		}
 		return ERROR_NON_VALID_ARGUMENTS;
 	}

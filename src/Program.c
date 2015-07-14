@@ -22,6 +22,8 @@ int InitProgramContext(PPROGRAM_CONTEXT ProgramContext, int argc, char * argv[])
 	ProgramContext->TweetStringsSize = 0;
 	ProgramContext->TweetStrings = NULL;
 	
+  	time (&ProgramContext->StartTime);
+	
 	Result = ParseArguments(argc, argv, ProgramContext);
 	
 	//Tweets Per Node

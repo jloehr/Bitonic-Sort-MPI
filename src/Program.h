@@ -3,6 +3,7 @@
 #include "Int.h"
 #include <wchar.h>
 #include <mpi.h>
+#include <time.h>
 
 #include "ForwardDeclarations.h"
 
@@ -13,11 +14,13 @@ typedef wchar_t * PWSTRING;
 typedef struct _PROGRAM_CONTEXT 
 {
 	const char * Filename;
+	const char * OutputDir;
 	uint64_t NumberOfFiles;
 	uint64_t TweetsPerFile;
 	uint64_t TotalAmountOfTweets;
 	uint16_t MaxTweetSize;
 	const wchar_t * SearchTerm;
+	time_t StartTime;
 	
 	uint64_t PageSize;
 	

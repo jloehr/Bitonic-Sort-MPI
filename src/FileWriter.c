@@ -6,6 +6,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <math.h> 
+#include <time.h>
 
 #include "ErrorCodes.h"
 
@@ -45,12 +46,18 @@ int WriteOutResults(PPROGRAM_CONTEXT ProgramContext)
 
 int OpenOutputFile(PPROGRAM_CONTEXT ProgramContext, PFILE_WRITER_CONTEXT FileWriterContext)
 {	
-	//Get Memory for Filename + ".out." + NodeID
-	uint32_t NumberOfDigits = log10(ProgramContext->NodeContext.NodeID) + 1;
-	uint32_t FilenameLength = strlen(ProgramContext->Filename);
-	char * FilenameBuffer = malloc(FilenameLength + NumberOfDigits + 5);
+	//Get Memory for OutputDir + NumberOfTweets + ".out." + YYYY-MM-DD_HH-MM-SS + "." + NodeID
+	uint32_t NumberOfNodeIDDigits = log10(ProgramContext->NodeContext.NodeID) + 1;
+	uint32_t NumberOfTweetsPerFileDigits = log10(ProgramContext->TweetsPerFile) + 1;
+	uint32_t OutDirLength = strlen(ProgramContext->OutputDir);
+	char * FilenameBuffer = malloc(OutDirLength + NumberOfNodeIDDigits + NumberOfTweetsPerFileDigits + 27);
+	char * WritePointer = FilenameBuffer;
 	
-	sprintf(FilenameBuffer, "%s.out.%d", ProgramContext->Filename, ProgramContext->NodeContext.NodeID);
+	sprintf(WritePointer, "%s%"PRIu64".out.", ProgramContext->OutputDir, ProgramContext->TweetsPerFile);
+	WritePointer += OutDirLength + NumberOfTweetsPerFileDigits + 5;
+	strftime(WritePointer, 22, "%F_%H-%M-%S", localtime(&ProgramContext->StartTime));
+	WritePointer += 19;
+	sprintf(WritePointer, ".%d", ProgramContext->NodeContext.NodeID);
 	
 	//Open File
 	FileWriterContext->OutputFile = fopen(FilenameBuffer, "w");
