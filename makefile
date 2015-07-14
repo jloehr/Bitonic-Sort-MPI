@@ -1,5 +1,5 @@
 
-CC = mpicc
+CC = cc
 CFLAGS = -O3 -g -std=c11 -Wall
 LDFLAGS = -lm
 
