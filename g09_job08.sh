@@ -13,4 +13,4 @@ cd $PBS_O_WORKDIR
 #create output directory
 mkdir -p ./out/
 
-aprun -B ./bin/bitonic-mpi -t $TWEETSPERFILE -n $NUMBEROFFILES -f ./../$TWEETSPERFILEtweets -o ./out/  $SEARCHTERM > ./out/log.$DATE
+aprun -B ./bin/bitonic-mpi -t $TWEETSPERFILE -n $NUMBEROFFILES -f ./../${TWEETSPERFILE}tweets -o ./out/  $SEARCHTERM > ./out/log.$DATE
