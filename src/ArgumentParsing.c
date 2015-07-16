@@ -81,6 +81,7 @@ int ParseArguments(int argc, char * argv[], PPROGRAM_CONTEXT ProgramContext)
 		{
 			wprintf(L"Error no Output dir provided!\n");	
 		}
+		
 		return ERROR_NON_VALID_ARGUMENTS;
 	}
 	

@@ -14,6 +14,7 @@ int InitProgramContext(PPROGRAM_CONTEXT ProgramContext, int argc, char * argv[])
 	InitNodeContext(&(ProgramContext->NodeContext));
 	
 	ProgramContext->Filename = NULL;
+	ProgramContext->OutputDir = NULL;
 	ProgramContext->NumberOfFiles = 0;
 	ProgramContext->TweetsPerFile = 0;
 	ProgramContext->TotalAmountOfTweets = 0;
