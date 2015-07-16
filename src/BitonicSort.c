@@ -227,7 +227,6 @@ void GetMergeSortStartingPoints(PPROGRAM_CONTEXT ProgramContext, PTWEET * LeftPo
     if(LeftEdgeUp == RightEdgeUp)
     {
         //Nothing to adjust
-        wprintf(L"Nothing to do: %d\n", ProgramContext->NodeContext.NodeID);
         return;
     }
     
@@ -235,7 +234,6 @@ void GetMergeSortStartingPoints(PPROGRAM_CONTEXT ProgramContext, PTWEET * LeftPo
     if((LeftEdgeUp && (Result > 0)) || (!LeftEdgeUp && (Result < 0)))
     {
         // Straight Line, so nothing to adjust
-        wprintf(L"Simple Line: %d\n", ProgramContext->NodeContext.NodeID);
         return;
     }
     
@@ -261,7 +259,6 @@ void GetMergeSortStartingPoints(PPROGRAM_CONTEXT ProgramContext, PTWEET * LeftPo
                 //Maxima found
                 (*LeftPointer) = RightSeekPointer;
                 (*RightPointer) = LeftSeekPointer;
-                wprintf(L"Starting adjusted: %d\n", ProgramContext->NodeContext.NodeID);
                 return;
             }
         }
@@ -281,73 +278,4 @@ void GetMergeSortStartingPoints(PPROGRAM_CONTEXT ProgramContext, PTWEET * LeftPo
     
     //If no Extrema is found something went wrong
     wprintf(L"Seeking went wrong on Node: %d\n", ProgramContext->NodeContext.NodeID);
-    
-    
-    
-    /*
-    
-Node 2: Start with Up
-Node 2: Change to Down at 57
-Node 2: Change to Up at 8173
-Node 2: End with Up
-Node 2: 1 - 0
-May be Shifted: 2
-Extrema should be Down
-*/
-/*
-Node 1: Start with Down
-Node 1: Change to Up at 56
-Node 1: Change to Down at 8215
-Node 3: Sorted correct: true
-Node 1: End with Down
-Node 1: 0 - 1
-May be Shifted: 1
-Extrema should be Up
-*/
-/*
-    
-    bool Print = ProgramContext->NodeContext.NodeID == 1;
-    
-   
-    
-    if(Print)
-    {
-        wprintf(L"Node %d: Start with %s\n", ProgramContext->NodeContext.NodeID, LeftEdgeUp ? "Up" : "Down");
-        bool TmpUpDirection = LeftEdgeUp;
-        for(uint64_t i = 0; i < ProgramContext->NodeContext.ElementsPerNode - 1; i++)
-        {
-            int Result = CompareTweetsDesc(ProgramContext->NodeContext.Data + i, ProgramContext->NodeContext.Data + i + 1, ProgramContext);
-            
-            if(Result != 0)
-            {
-                bool StillUpDirection = (Result > 0);
-                
-                if(TmpUpDirection != StillUpDirection)
-                {
-                    TmpUpDirection = StillUpDirection;
-                    wprintf(L"Node %d: Change to %s at %d\n", ProgramContext->NodeContext.NodeID, TmpUpDirection ? "Up" : "Down", i);
-                }
-            }  
-        }
-        
-        wprintf(L"Node %d: End with %s\n", ProgramContext->NodeContext.NodeID, TmpUpDirection ? "Up" : "Down");
-       
-        wprintf(L"Node %d: %d - %d\n", ProgramContext->NodeContext.NodeID, LeftEdgeUp, RightEdgeUp);
-        
-        if(LeftEdgeUp != RightEdgeUp)
-        {
-            wprintf(L"May be Shifted: %d\n", ProgramContext->NodeContext.NodeID);
-            int Result = CompareTweetsDesc(LeftTmpPointer, RightTmpPointer, ProgramContext);
-            
-            if((LeftEdgeUp && (Result > 0)) || (!LeftEdgeUp && (Result < 0)))
-            {
-                wprintf(L"Simple Line: %d\n", ProgramContext->NodeContext.NodeID);
-            }
-        } 
-        
-        wprintf(L"Extrema should be %s\n", Down ? "Down" : "Up");
-        
-        wprintf(L"--------\n");
-    }
-*/
 }
