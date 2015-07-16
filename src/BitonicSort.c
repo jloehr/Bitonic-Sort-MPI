@@ -190,8 +190,8 @@ void MergeSort(PPROGRAM_CONTEXT ProgramContext, bool Descending)
 
 void GetMergeSortStartingPoints(PPROGRAM_CONTEXT ProgramContext, PTWEET * LeftPointer, PTWEET * RightPointer, bool Down)
 {
-    bool LeftEdgeUp;
-    bool RightEdgeUp;
+    bool LeftEdgeUp = false;
+    bool RightEdgeUp = false;
     bool SeekFromLeft;
     bool SeekDirectionUp;
     PTWEET LeftTmpPointer = *LeftPointer;
