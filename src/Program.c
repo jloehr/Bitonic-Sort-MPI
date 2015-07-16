@@ -26,6 +26,10 @@ int InitProgramContext(PPROGRAM_CONTEXT ProgramContext, int argc, char * argv[])
   	time (&ProgramContext->StartTime);
 	
 	Result = ParseArguments(argc, argv, ProgramContext);
+	if(Result != NO_ERROR)
+	{
+		return Result;
+	}
 	
 	//Tweets Per Node
 	ProgramContext->TotalAmountOfTweets = ProgramContext->TweetsPerFile * ProgramContext->NumberOfFiles;
