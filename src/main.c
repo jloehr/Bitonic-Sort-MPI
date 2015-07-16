@@ -16,6 +16,7 @@
 #include "BitonicSort.h"
 #include "FileWriter.h"
 
+void CleanUp(PPROGRAM_CONTEXT ProgramContext);
 
 int main(int argc, char * argv[])
 {   
@@ -30,6 +31,7 @@ int main(int argc, char * argv[])
     Status = InitProgramContext(&ProgramContext, argc, argv);
     if(Status != NO_ERROR)
     {
+        CleanUp(&ProgramContext);
     	return Status;
     }
     
@@ -49,6 +51,7 @@ int main(int argc, char * argv[])
     Status = ReadInTweets(&ProgramContext);
     if(Status != NO_ERROR)
     {
+        CleanUp(&ProgramContext);
     	return Status;
     }
     
@@ -64,6 +67,7 @@ int main(int argc, char * argv[])
     Status = ParseTweets(&ProgramContext);
     if(Status != NO_ERROR)
     {
+        CleanUp(&ProgramContext);
     	return Status;
     }
     
@@ -82,6 +86,7 @@ int main(int argc, char * argv[])
     Status = WriteOutResults(&ProgramContext);
     if(Status != NO_ERROR)
     {
+        CleanUp(&ProgramContext);
     	return Status;
     }
     
@@ -90,8 +95,13 @@ int main(int argc, char * argv[])
     DoneWriting(&ProgramContext.NodeContext.BenchmarkContext);
     PrintTimes(&ProgramContext.NodeContext.BenchmarkContext);
     
-    FinalizeProgramContext(&ProgramContext);
-    MPI_Finalize();
+    CleanUp(&ProgramContext);
     
 	return NO_ERROR;
+}
+
+void CleanUp(PPROGRAM_CONTEXT ProgramContext)
+{
+    FinalizeProgramContext(ProgramContext);
+    MPI_Finalize();
 }
