@@ -11,7 +11,7 @@ typedef struct _UNICODE_APPEARANCE
 	wchar_t UnicodeCharacter;
 	uint16_t NumberOfAppearance;	
 	
-} UNICODE_APPEARANCE, * PUNICODE_APPEARANCE;
+} UNICODE_APPEARANCE;
 
 typedef struct _TWEET 
 {	
@@ -21,7 +21,7 @@ typedef struct _TWEET
 
 	uint64_t TweetStringOffset;
 	
-} TWEET, * PTWEET;
+} TWEET;
 
 int InitMPITweetType(PPROGRAM_CONTEXT ProgramContext);
 

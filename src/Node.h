@@ -20,7 +20,7 @@ typedef struct _NODE_CONTEXT
 	PTWEET Data;
 	PTWEET DataBuffer;
 	
-} NODE_CONTEXT, * PNODE_CONTEXT;
+} NODE_CONTEXT;
 
 void InitNodeContext(PNODE_CONTEXT NodeContext);
 void FinalizeNodeContext(PNODE_CONTEXT NodeContext);

@@ -34,7 +34,7 @@ typedef struct _BENCHMARK_CONTEXT
 	clock_t MergeSortStart;
 	
 	
-} BENCHMARK_CONTEXT, * PBENCHMARK_CONTEXT;
+} BENCHMARK_CONTEXT;
 
 void InitBenchmark(PBENCHMARK_CONTEXT BenchmarkContext);
 void PrintMemoryConsumption(PPROGRAM_CONTEXT ProgramContext, PBENCHMARK_CONTEXT BenchmarkContext);
