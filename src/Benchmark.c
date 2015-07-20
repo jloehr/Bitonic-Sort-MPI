@@ -139,7 +139,7 @@ void PrintTimes(PBENCHMARK_CONTEXT BenchmarkContext)
 	wprintf(L"- Net Ovrhd:\t%#10.5f\n", NetworkingOverheadTime);
 	wprintf(L"- Networking:\t%#10.5f\n", NetworkingTime);
 	wprintf(L"- Single Net:\t%#10.5f\n", TimePerExchange);
-	wprintf(L"- Bitonic:\t%#10.5f\n", BitonicCompareTime - NetworkingTime - MergeSortTime);
+	wprintf(L"- Bitonic:\t%#10.5f\n", BitonicCompareTime - NetworkingTime  - NetworkingOverheadTime - MergeSortTime);
 	wprintf(L"- MergeSort:\t%#10.5f\n", MergeSortTime);
 	wprintf(L"- Bare Sort:\t%#10.5f\n", SortingTime - NetworkingTime - NetworkingOverheadTime);
 	wprintf(L"Writing:\t%#10.5f\n", WritingTime);
